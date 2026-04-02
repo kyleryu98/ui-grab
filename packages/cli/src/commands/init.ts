@@ -586,7 +586,7 @@ export const init = new Command()
         }
       }
 
-      const shouldInstallReactGrab = !projectInfo.hasReactGrab;
+      const shouldInstallReactGrab = !projectInfo.hasUiGrabPackageInstalled;
 
       if (!opts.skipInstall && shouldInstallReactGrab) {
         installPackagesWithFeedback(

@@ -1,8 +1,8 @@
 {
   "name": "ui-grab-mcp",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "bin": {
-    "ui-grab-mcp": "bin/ui-grab-mcp.js"
+    "ui-grab-mcp": "bin/ui-grab-mcp.cjs"
   },
   "files": [
     "bin",
@@ -39,12 +39,13 @@
   },
   "scripts": {
     "dev": "tsup --watch",
-    "build": "pnpm --filter ui-grab build && node scripts/build.js && rm -rf dist && NODE_ENV=production tsup"
+    "build": "pnpm --filter ui-grab build && node scripts/build.js && rm -rf dist && NODE_ENV=production tsup",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.0",
     "fkill": "^9.0.0",
-    "ui-grab": "0.1.31",
+    "ui-grab": "0.1.32",
     "zod": "^3.25.0"
   },
   "devDependencies": {

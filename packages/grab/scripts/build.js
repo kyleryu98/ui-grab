@@ -10,13 +10,6 @@ const cliRoot = path.resolve(__dirname, "../../cli");
 const repoRoot = path.resolve(__dirname, "../../..");
 
 const ensureSourceBuilds = () => {
-  const runtimeEntryPath = path.join(reactGrabRoot, "dist", "index.js");
-  const cliEntryPath = path.join(cliRoot, "dist", "cli.js");
-
-  if (fs.existsSync(runtimeEntryPath) && fs.existsSync(cliEntryPath)) {
-    return;
-  }
-
   console.log("Building internal source packages before packaging...");
   execSync(
     "pnpm turbo run build --filter=react-grab --filter=@react-grab/cli",

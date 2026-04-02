@@ -281,6 +281,16 @@ export default function Document() {
 });
 
 describe("previewTransform - Vite edge cases", () => {
+  const entryContent = `import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);`;
+
   it("should fail when entry file not found", () => {
     mockExistsSync.mockReturnValue(false);
 
@@ -318,6 +328,33 @@ describe("previewTransform - Vite edge cases", () => {
 
     expect(result.success).toBe(true);
     expect(result.noChanges).toBe(true);
+  });
+
+  it("should not treat an unrelated page title as existing UI Grab code", () => {
+    const indexHtml = `<!doctype html>
+<html lang="en">
+  <head>
+    <title>ui-grab-external-app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>`;
+
+    mockExistsSync.mockImplementation((path) => {
+      const pathStr = String(path);
+      return pathStr.endsWith("index.html") || pathStr.endsWith("main.tsx");
+    });
+    mockReadFileSync.mockImplementation((path) => {
+      if (String(path).endsWith("index.html")) return indexHtml;
+      return entryContent;
+    });
+
+    const result = previewTransform("/test", "vite", "unknown", "none", false);
+
+    expect(result.success).toBe(true);
+    expect(result.noChanges).not.toBe(true);
+    expect(result.newContent).toContain('import("ui-grab")');
   });
 });
 

@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { detect } from "@antfu/ni";
 import ignore from "ignore";
+import { hasUiGrabMarker } from "./ui-grab-detection.js";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 export type Framework = "next" | "vite" | "tanstack" | "webpack" | "unknown";
@@ -20,6 +21,7 @@ interface ProjectInfo {
   isMonorepo: boolean;
   projectRoot: string;
   hasReactGrab: boolean;
+  hasUiGrabPackageInstalled: boolean;
   installedAgents: string[];
   unsupportedFramework: UnsupportedFramework;
 }
@@ -358,22 +360,13 @@ const hasReactGrabInFile = (filePath: string): boolean => {
   if (!existsSync(filePath)) return false;
   try {
     const content = readFileSync(filePath, "utf-8");
-    const fuzzyPatterns = [
-      /["'`][^"'`]*ui-grab/,
-      /ui-grab[^"'`]*["'`]/,
-      /<[^>]*ui-grab/i,
-      /import[^;]*ui-grab/i,
-      /require[^)]*ui-grab/i,
-      /from\s+[^;]*ui-grab/i,
-      /src[^>]*ui-grab/i,
-    ];
-    return fuzzyPatterns.some((pattern) => pattern.test(content));
+    return hasUiGrabMarker(content);
   } catch {
     return false;
   }
 };
 
-export const detectReactGrab = (projectRoot: string): boolean => {
+export const detectInstalledUiGrabPackage = (projectRoot: string): boolean => {
   const packageJsonPath = join(projectRoot, "package.json");
 
   if (existsSync(packageJsonPath)) {
@@ -389,6 +382,10 @@ export const detectReactGrab = (projectRoot: string): boolean => {
     } catch {}
   }
 
+  return false;
+};
+
+export const detectReactGrab = (projectRoot: string): boolean => {
   const filesToCheck = [
     join(projectRoot, "app", "layout.tsx"),
     join(projectRoot, "app", "layout.jsx"),
@@ -491,6 +488,7 @@ export const detectProject = async (
     isMonorepo: detectMonorepo(projectRoot),
     projectRoot,
     hasReactGrab: detectReactGrab(projectRoot),
+    hasUiGrabPackageInstalled: detectInstalledUiGrabPackage(projectRoot),
     installedAgents: detectInstalledAgents(projectRoot),
     unsupportedFramework: detectUnsupportedFramework(projectRoot),
   };

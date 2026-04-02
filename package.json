@@ -7,7 +7,7 @@
   "scripts": {
     "build": "turbo run build --filter=react-grab --filter=@react-grab/cli && pnpm --filter ui-grab build && pnpm --filter ui-grab-mcp build",
     "dev": "turbo dev --filter=react-grab --filter=@react-grab/cli",
-    "test": "turbo run test --filter=react-grab --filter=@react-grab/cli",
+    "test": "turbo run test --filter=react-grab --filter=@react-grab/cli && pnpm --filter ui-grab-mcp build && pnpm --filter ui-grab-mcp test",
     "typecheck": "pnpm --filter react-grab typecheck",
     "lint": "pnpm --filter react-grab lint",
     "lint:fix": "pnpm --filter react-grab lint:fix",

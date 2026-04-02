@@ -42,15 +42,23 @@ UI context picker for coding agents with built-in `Shift + click` multi-select.
 - `ui-grab`: runtime, CLI, and public exports for `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
 - `ui-grab-mcp`: optional MCP bridge for editor and agent integrations
 
+Published package names use hyphens: `ui-grab` and `ui-grab-mcp`.
+
 ## Install
 
 ```bash
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
+# npm
+npm install -D ui-grab
+
 # Optional MCP bridge
 pnpm add -D ui-grab-mcp
+npm install -D ui-grab-mcp
 ```
+
+Do not use `uigrab` or `uigrab-mcp` without hyphens. The published package names are `ui-grab` and `ui-grab-mcp`.
 
 ## Quick Start
 
@@ -69,6 +77,17 @@ Install the bridge only if you want agent tooling to consume UI Grab payloads di
 pnpm add -D ui-grab-mcp
 npx ui-grab@latest add mcp
 ```
+
+## Do I need `ui-grab-mcp`?
+
+Most projects do not.
+
+- If you only want the in-browser picker, install `ui-grab` and stop there.
+- If you want Codex, Cursor, Claude Code, OpenCode, or another MCP-capable agent to read the latest picked UI context, enable the MCP bridge.
+- `ui-grab add mcp` writes agent config files that run `ui-grab-mcp` over `npx`.
+- A project-local `ui-grab-mcp` install is optional. It is useful when you want to pin the exact MCP version inside a repo or run the server locally yourself.
+
+If you already installed `ui-grab` manually with `npm install -D ui-grab`, `npx ui-grab@latest init` will still configure your project.
 
 ## Manual Setup
 
