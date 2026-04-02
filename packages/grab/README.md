@@ -17,14 +17,26 @@ UI context picker for coding agents with built-in `Shift + click` multi-select.
 
 ## Install
 
+### Recommended: guided setup
+
 ```bash
 npx ui-grab@latest init
+```
+
+`ui-grab init` configures your project and installs `ui-grab` automatically unless you pass `--skip-install`.
+
+### Manual package install
+
+```bash
 pnpm add -D ui-grab
 
 # npm
 npm install -D ui-grab
+```
 
-# Optional: MCP bridge
+### Optional: local MCP bridge install
+
+```bash
 pnpm add -D ui-grab-mcp
 npm install -D ui-grab-mcp
 ```
@@ -37,10 +49,10 @@ If you already installed `ui-grab` manually with `npm install -D ui-grab`, `npx 
 
 1. Run `npx ui-grab@latest init` inside your project.
 2. Start your app in development mode.
-3. Enable the floating toolbar.
-4. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-5. Hold `Shift` and click multiple elements to build a grouped selection.
-6. Release `Shift`, type into the prompt textarea, and submit.
+3. Hold `Cmd+C` on macOS or `Ctrl+C` on Windows/Linux briefly to activate UI Grab, unless you configured a custom activation key.
+4. Hover an element and click it to copy a single element.
+5. With UI Grab active, hold `Shift` and click multiple elements to build a grouped selection.
+6. Release `Shift`, type into the prompt textarea, and press `Enter` to submit.
 
 ## MCP Bridge
 
