@@ -16,3 +16,5 @@ playwright-report
 meta.json
 .agents/skills
 .claude
+.omx
+openspec/

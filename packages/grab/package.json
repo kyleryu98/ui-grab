@@ -1,6 +1,6 @@
 {
   "name": "ui-grab",
-  "version": "0.1.32",
+  "version": "0.1.34",
   "description": "Open-source UI context picker for coding agents with built-in Shift multi-select",
   "keywords": [
     "agent",
@@ -82,7 +82,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@antfu/ni": "^0.23.0",

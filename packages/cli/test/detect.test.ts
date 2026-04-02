@@ -212,6 +212,24 @@ describe("detectReactGrab", () => {
     expect(detectReactGrab("/test")).toBe(true);
   });
 
+  it("should detect ui-grab when a Vite JSX entry file imports it", () => {
+    mockExistsSync.mockImplementation((path) => {
+      const pathStr = String(path);
+      return pathStr.endsWith("package.json") || pathStr.endsWith("main.jsx");
+    });
+    mockReadFileSync.mockImplementation((path) => {
+      if (String(path).endsWith("package.json")) {
+        return JSON.stringify({ dependencies: { react: "19.0.0" } });
+      }
+
+      return `if (import.meta.env.DEV) {
+  import("ui-grab");
+}`;
+    });
+
+    expect(detectReactGrab("/test")).toBe(true);
+  });
+
   it("should return false when no package.json exists", () => {
     mockExistsSync.mockReturnValue(false);
 

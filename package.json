@@ -14,8 +14,8 @@
     "format": "oxfmt",
     "pack:ui-grab": "pnpm --filter ui-grab pack",
     "pack:ui-grab-mcp": "pnpm --filter ui-grab-mcp pack",
-    "release:dry-run": "pnpm build && npm publish ./packages/grab --dry-run --access public && npm publish ./packages/mcp --dry-run --access public",
-    "release": "pnpm build && npm publish ./packages/grab --access public && npm publish ./packages/mcp --access public"
+    "release:dry-run": "pnpm build && node scripts/publish-packages.mjs --dry-run",
+    "release": "pnpm build && node scripts/publish-packages.mjs"
   },
   "devDependencies": {
     "oxfmt": "^0.27.0",
