@@ -1,6 +1,6 @@
 {
   "name": "ui-grab-mcp",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "bin": {
     "ui-grab-mcp": "bin/ui-grab-mcp.js"
   },
@@ -44,7 +44,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.0",
     "fkill": "^9.0.0",
-    "ui-grab": "0.1.29",
+    "ui-grab": "0.1.30",
     "zod": "^3.25.0"
   },
   "devDependencies": {
