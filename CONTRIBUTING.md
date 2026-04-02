@@ -64,6 +64,63 @@ nr lint:fix    # Fix lint errors
 nr format      # Format code with oxfmt
 ```
 
+## Documentation Scope
+
+The root `README.md` and the packaged `packages/grab/README.md` copy are user-facing documents.
+
+They should contain:
+
+- what `ui-grab` is
+- install and quick start instructions
+- framework-specific setup
+- public package and export references
+- support and license links
+
+They should not contain:
+
+- npm trusted publishing setup
+- token or credential hardening steps
+- maintainer-only release workflows
+- `npm publish --dry-run` or similar release validation steps
+- internal administrative notes
+
+Put maintainer-only operational guidance in `CONTRIBUTING.md` or other maintainer docs instead of the README.
+
+## Release & Publishing
+
+### Recommended Checks Before Release
+
+```bash
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm test
+npm publish ./packages/grab --dry-run --access public
+npm publish ./packages/mcp --dry-run --access public
+```
+
+### npm Trusted Publishing
+
+`ui-grab` and `ui-grab-mcp` are set up to use npm trusted publishing through GitHub Actions instead of long-lived publish tokens.
+
+1. Push `.github/workflows/publish.yml` to the default branch.
+2. In npm package settings, open `Trusted publishing`.
+3. Choose `GitHub Actions`.
+4. Configure:
+   - GitHub user or org: `Yongtaek-Ryu`
+   - Repository: `ui-grab`
+   - Workflow filename: `publish.yml`
+5. Repeat the same setup for `ui-grab-mcp`.
+6. Run the `Publish` workflow or push a version tag such as `v0.1.34`.
+
+Recommended hardening after the first successful publish:
+
+- Package settings -> `Publishing access`
+- Choose `Require two-factor authentication and disallow tokens`
+- Revoke any old publish tokens you no longer need
+
+npm provenance is attached only when a public repository publishes a public package. Trusted publishing can still work for private repositories, but provenance badges will not be generated there.
+
 ## Code Style
 
 - **Use TypeScript interfaces** over types

@@ -17,4 +17,8 @@ meta.json
 .agents/skills
 .claude
 .omx
-openspec/
+openspec/changes/*
+!openspec/changes/archive/
+!openspec/changes/archive/**
+!openspec/specs/
+!openspec/specs/**

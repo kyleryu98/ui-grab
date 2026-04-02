@@ -12,8 +12,8 @@ UI context picker for coding agents with built-in `Shift + click` multi-select.
 
 ## Packages
 
-- `ui-grab`: runtime, CLI, and public exports for `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- `ui-grab-mcp`: optional MCP bridge for editor and agent integrations
+- [`ui-grab`](https://www.npmjs.com/package/ui-grab): runtime, CLI, and public exports for `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
+- [`ui-grab-mcp`](https://www.npmjs.com/package/ui-grab-mcp): optional MCP bridge for editor and agent integrations
 
 ## Install
 
@@ -132,42 +132,6 @@ if (process.env.NODE_ENV === "development") {
 - Stylesheet: `ui-grab/styles.css`
 - CLI: `ui-grab`
 - MCP bridge: `ui-grab-mcp`
-
-## Verification
-
-- Published packages: [`ui-grab`](https://www.npmjs.com/package/ui-grab), [`ui-grab-mcp`](https://www.npmjs.com/package/ui-grab-mcp)
-- Recommended local checks:
-
-```bash
-pnpm build
-pnpm typecheck
-pnpm lint
-pnpm test
-npm publish ./packages/grab --dry-run --access public
-npm publish ./packages/mcp --dry-run --access public
-```
-
-## Publishing Without Long-Lived Tokens
-
-`ui-grab` is ready for npm trusted publishing through GitHub Actions. This avoids keeping a long-lived write token on your machine or in repository secrets.
-
-1. Push `.github/workflows/publish.yml` to the default branch.
-2. On npm, open the settings page for `ui-grab`.
-3. In `Trusted publishing`, choose `GitHub Actions`.
-4. Use:
-   - GitHub user or org: `Yongtaek-Ryu`
-   - Repository: `ui-grab`
-   - Workflow filename: `publish.yml`
-5. Repeat the same setup for `ui-grab-mcp`.
-6. Run the `Publish` GitHub Actions workflow, or push a version tag such as `v0.1.34`.
-
-Recommended hardening after the first successful run:
-
-- Package settings -> `Publishing access`
-- Choose `Require two-factor authentication and disallow tokens`
-- Revoke any old publish tokens you no longer need
-
-According to npm's trusted publishing docs, provenance is generated only for public repositories publishing public packages. If this repository stays private, trusted publishing can still be used, but npm provenance badges will not be attached.
 
 ## Support
 
