@@ -4,6 +4,7 @@ import {
   detectMonorepo,
   detectNextRouterType,
   detectReactGrab,
+  detectInstalledUiGrabPackage,
   detectInstalledAgents,
   detectUnsupportedFramework,
 } from "../src/utils/detect.js";
@@ -175,22 +176,13 @@ describe("detectMonorepo", () => {
 });
 
 describe("detectReactGrab", () => {
-  it("should detect ui-grab in dependencies", () => {
+  it("should return false when only the dependency is installed", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(
       JSON.stringify({ dependencies: { "ui-grab": "1.0.0" } }),
     );
 
-    expect(detectReactGrab("/test")).toBe(true);
-  });
-
-  it("should detect ui-grab in devDependencies", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue(
-      JSON.stringify({ devDependencies: { "ui-grab": "1.0.0" } }),
-    );
-
-    expect(detectReactGrab("/test")).toBe(true);
+    expect(detectReactGrab("/test")).toBe(false);
   });
 
   it("should return false when ui-grab is not installed", () => {
@@ -200,6 +192,24 @@ describe("detectReactGrab", () => {
     );
 
     expect(detectReactGrab("/test")).toBe(false);
+  });
+
+  it("should detect ui-grab when an entry file imports it", () => {
+    mockExistsSync.mockImplementation((path) => {
+      const pathStr = String(path);
+      return pathStr.endsWith("package.json") || pathStr.endsWith("main.tsx");
+    });
+    mockReadFileSync.mockImplementation((path) => {
+      if (String(path).endsWith("package.json")) {
+        return JSON.stringify({ dependencies: { react: "19.0.0" } });
+      }
+
+      return `if (import.meta.env.DEV) {
+  import("ui-grab");
+}`;
+    });
+
+    expect(detectReactGrab("/test")).toBe(true);
   });
 
   it("should return false when no package.json exists", () => {
@@ -213,6 +223,57 @@ describe("detectReactGrab", () => {
     mockReadFileSync.mockReturnValue("not valid json");
 
     expect(detectReactGrab("/test")).toBe(false);
+  });
+
+  it("should not treat an app title containing ui-grab as an installation marker", () => {
+    mockExistsSync.mockImplementation((path) => {
+      const pathStr = String(path);
+      return pathStr.endsWith("package.json") || pathStr.endsWith("index.html");
+    });
+    mockReadFileSync.mockImplementation((path) => {
+      if (String(path).endsWith("package.json")) {
+        return JSON.stringify({ dependencies: { react: "19.0.0" } });
+      }
+
+      return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ui-grab-external-app</title>
+  </head>
+</html>`;
+    });
+
+    expect(detectReactGrab("/test")).toBe(false);
+  });
+});
+
+describe("detectInstalledUiGrabPackage", () => {
+  it("should detect ui-grab in dependencies", () => {
+    mockExistsSync.mockReturnValue(true);
+    mockReadFileSync.mockReturnValue(
+      JSON.stringify({ dependencies: { "ui-grab": "1.0.0" } }),
+    );
+
+    expect(detectInstalledUiGrabPackage("/test")).toBe(true);
+  });
+
+  it("should detect ui-grab in devDependencies", () => {
+    mockExistsSync.mockReturnValue(true);
+    mockReadFileSync.mockReturnValue(
+      JSON.stringify({ devDependencies: { "ui-grab": "1.0.0" } }),
+    );
+
+    expect(detectInstalledUiGrabPackage("/test")).toBe(true);
+  });
+
+  it("should return false when package.json has no ui-grab dependency", () => {
+    mockExistsSync.mockReturnValue(true);
+    mockReadFileSync.mockReturnValue(
+      JSON.stringify({ dependencies: { react: "19.0.0" } }),
+    );
+
+    expect(detectInstalledUiGrabPackage("/test")).toBe(false);
   });
 });
 

@@ -7,6 +7,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import type { Framework, NextRouterType, PackageManager } from "./detect.js";
+import { hasUiGrabMarker } from "./ui-grab-detection.js";
 import {
   NEXT_APP_ROUTER_SCRIPT,
   NEXT_PAGES_ROUTER_SCRIPT,
@@ -45,17 +46,7 @@ export interface PackageJsonTransformResult {
 }
 
 const hasReactGrabCode = (content: string): boolean => {
-  const fuzzyPatterns = [
-    /["'`][^"'`]*ui-grab/,
-    /ui-grab[^"'`]*["'`]/,
-    /<[^>]*ui-grab/i,
-    /import[^;]*ui-grab/i,
-    /require[^)]*ui-grab/i,
-    /from\s+[^;]*ui-grab/i,
-    /src[^>]*ui-grab/i,
-    /href[^>]*ui-grab/i,
-  ];
-  return fuzzyPatterns.some((pattern) => pattern.test(content));
+  return hasUiGrabMarker(content);
 };
 
 const findLayoutFile = (projectRoot: string): string | null => {

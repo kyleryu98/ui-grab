@@ -240,10 +240,13 @@ export const startMcpServer = async ({
     const transport = new StdioServerTransport();
     await mcpServer.server.connect(transport);
 
-    startHttpServer(port).then(
-      () => console.error(`UI Grab context server listening on port ${port}`),
-      (error) => console.error(`Failed to start context server: ${error}`),
-    );
+    try {
+      await startHttpServer(port);
+      console.error(`UI Grab context server listening on port ${port}`);
+    } catch (error) {
+      console.error(`Failed to start context server: ${error}`);
+      throw error;
+    }
     return;
   }
 
