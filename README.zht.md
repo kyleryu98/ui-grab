@@ -1,3 +1,5 @@
+# ui-grab
+
 <p align="center">為編碼代理打造的開源 UI 上下文擷取工具。</p>
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
@@ -35,18 +37,13 @@
 ### 安裝
 
 ```bash
-# 此分叉的公開套件名稱
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# 首次 npm 發佈前的本地建置方式
-pnpm install
-pnpm build
-pnpm --filter ui-grab pack
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> `ui-grab` 是此分叉的公開套件名稱。儲存庫已具備發佈條件，但首次公開 npm 發佈仍需要維護者帳號完成 npm 驗證。
 
 ### 為什麼選擇 UI Grab
 
@@ -76,7 +73,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -100,7 +97,7 @@ export default function Document() {
       <Head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />

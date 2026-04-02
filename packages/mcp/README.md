@@ -1,6 +1,6 @@
-# UI Grab MCP
+# ui-grab-mcp
 
-Optional MCP bridge for [UI Grab](https://github.com/Yongtaek-Ryu/ui-grab).
+Optional MCP bridge for [ui-grab](https://github.com/Yongtaek-Ryu/ui-grab).
 
 ## Install
 
@@ -14,4 +14,12 @@ pnpm add -D ui-grab-mcp
 npx ui-grab@latest add mcp
 ```
 
-This package is published separately so projects that do not need MCP can install only `ui-grab`.
+## Exports
+
+- `ui-grab-mcp/client`
+- `ui-grab-mcp/server`
+
+## Notes
+
+- `ui-grab-mcp` is published separately so projects that only need the browser picker can install `ui-grab` by itself.
+- Match `ui-grab-mcp` with the same `ui-grab` version when possible.

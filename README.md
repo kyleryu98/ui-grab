@@ -1,6 +1,7 @@
 # ui-grab
 
-The open-source UI context picker for coding agents.
+UI context picker for coding agents with built-in `Shift + click` multi-select.
+
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm package" src="https://img.shields.io/badge/npm-ui--grab-cb3837?style=flat-square" /></a>
@@ -34,10 +35,16 @@ The open-source UI context picker for coding agents.
 
 ---
 
-### Installation
+`ui-grab` is an independent fork of the MIT-licensed `react-grab` project. It keeps the upstream prompt UI and comment history flow, adds built-in `Shift + click` multi-select, and ships a separate MCP bridge so browser context picking can stay lightweight by default.
+
+## Packages
+
+- `ui-grab`: runtime, CLI, and public exports for `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
+- `ui-grab-mcp`: optional MCP bridge for editor and agent integrations
+
+## Install
 
 ```bash
-# Main package
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
@@ -45,28 +52,27 @@ pnpm add -D ui-grab
 pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+## Quick Start
 
-### Why UI Grab
+1. Run `npx ui-grab@latest init` inside your project.
+2. Start your app in development mode.
+3. Enable the floating toolbar.
+4. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
+5. Hold `Shift` and click multiple elements to build a grouped selection.
+6. Release `Shift`, type into the prompt textarea, and submit.
 
-- Copy file, component, and HTML context directly from the browser
-- Keep the original React Grab prompt UI and comment history flow
-- Use built-in `Shift + click` multi-select in comment mode
-- Preserve grouped prompt history after submitting multi-element selections
-- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- Keep MCP support optional through a separate `ui-grab-mcp` package
+## Optional MCP Bridge
 
-### Usage
+Install the bridge only if you want agent tooling to consume UI Grab payloads directly.
 
-1. Activate the selection tool from the floating toolbar.
-2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-3. Hold `Shift` and click multiple elements to build a grouped selection.
-4. Release `Shift`, type into the original textarea, and submit.
+```bash
+pnpm add -D ui-grab-mcp
+npx ui-grab@latest add mcp
+```
 
-### Manual Setup
+## Manual Setup
 
-#### Next.js (App Router)
+### Next.js (App Router)
 
 ```tsx
 import Script from "next/script";
@@ -77,7 +83,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -89,7 +95,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 }
 ```
 
-#### Next.js (Pages Router)
+### Next.js (Pages Router)
 
 ```tsx
 import Script from "next/script";
@@ -101,7 +107,7 @@ export default function Document() {
       <Head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -116,7 +122,7 @@ export default function Document() {
 }
 ```
 
-#### Vite
+### Vite
 
 ```tsx
 if (import.meta.env.DEV) {
@@ -124,7 +130,7 @@ if (import.meta.env.DEV) {
 }
 ```
 
-#### Webpack
+### Webpack
 
 ```tsx
 if (process.env.NODE_ENV === "development") {
@@ -132,28 +138,35 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-### Package Surface
+## Package Surface
 
-- Runtime: `ui-grab`
+- Runtime entry: `ui-grab`
 - Core API: `ui-grab/core`
 - Primitives: `ui-grab/primitives`
-- Styles: `ui-grab/styles.css`
+- Stylesheet: `ui-grab/styles.css`
 - CLI: `ui-grab`
 - MCP bridge: `ui-grab-mcp`
 
-### Repository Scope
+## Verification
 
-- Published to npm: `ui-grab`, `ui-grab-mcp`
-- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
-- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
+- Published packages: [`ui-grab`](https://www.npmjs.com/package/ui-grab), [`ui-grab-mcp`](https://www.npmjs.com/package/ui-grab-mcp)
+- Recommended local checks:
 
-### Support
+```bash
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm test
+npm publish ./packages/grab --dry-run --access public
+npm publish ./packages/mcp --dry-run --access public
+```
+
+## Support
 
 - Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
 - Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
 - Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- This repository is an independent fork and is not maintained by the original React Grab team.
 
-### License
+## License
 
 UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.

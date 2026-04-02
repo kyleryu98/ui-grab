@@ -1,3 +1,5 @@
+# ui-grab
+
 <p align="center">Εργαλείο ανοιχτού κώδικα για επιλογή UI context για coding agents.</p>
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
@@ -38,13 +40,10 @@
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-pnpm install
-pnpm build
-pnpm --filter ui-grab pack
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> Το `ui-grab` είναι το δημόσιο όνομα πακέτου αυτού του fork. Το αποθετήριο είναι έτοιμο για δημοσίευση, αλλά η πρώτη δημόσια έκδοση στο npm εξακολουθεί να απαιτεί npm authentication από τον λογαριασμό του maintainer.
 
 ### Γιατί UI Grab
 
@@ -74,7 +73,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />

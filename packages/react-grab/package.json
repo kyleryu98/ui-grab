@@ -1,6 +1,6 @@
 {
   "name": "react-grab",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "private": true,
   "description": "Internal runtime source for the UI Grab fork",
   "keywords": [
