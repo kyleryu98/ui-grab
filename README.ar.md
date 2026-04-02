@@ -1,3 +1,5 @@
+# ui-grab
+
 <p align="center">أداة مفتوحة المصدر لاختيار سياق الواجهة لوكلاء البرمجة.</p>
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
@@ -38,13 +40,10 @@
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-pnpm install
-pnpm build
-pnpm --filter ui-grab pack
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> `ui-grab` هو اسم الحزمة العامة لهذا الـ fork. المستودع جاهز للنشر، لكن أول إصدار npm عام ما زال يحتاج إلى مصادقة npm من حساب المشرف.
 
 ### لماذا UI Grab
 
@@ -74,7 +73,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />

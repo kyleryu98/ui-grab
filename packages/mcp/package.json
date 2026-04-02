@@ -1,6 +1,6 @@
 {
   "name": "ui-grab-mcp",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "bin": {
     "ui-grab-mcp": "bin/ui-grab-mcp.js"
   },
@@ -11,7 +11,7 @@
     "README.md",
     "LICENSE"
   ],
-  "description": "MCP bridge for UI Grab",
+  "description": "Optional MCP bridge for ui-grab",
   "license": "MIT",
   "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
   "bugs": {
@@ -44,7 +44,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.0",
     "fkill": "^9.0.0",
-    "ui-grab": "0.1.30",
+    "ui-grab": "0.1.31",
     "zod": "^3.25.0"
   },
   "devDependencies": {

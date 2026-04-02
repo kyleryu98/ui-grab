@@ -1,3 +1,5 @@
+# ui-grab
+
 <p align="center">Der Open-Source-UI-Kontext-Picker fuer Coding-Agenten.</p>
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
@@ -38,13 +40,10 @@
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-pnpm install
-pnpm build
-pnpm --filter ui-grab pack
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> `ui-grab` ist der oeffentliche Paketname dieses Forks. Das Repository ist veroeffentlichungsbereit, aber die erste npm-Freigabe braucht noch eine npm-Anmeldung des Maintainers.
 
 ### Warum UI Grab
 
@@ -73,7 +72,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />

@@ -1,3 +1,5 @@
+# ui-grab
+
 <p align="center">コーディングエージェント向けのオープンソース UI コンテキストピッカー。</p>
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
@@ -38,13 +40,10 @@
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-pnpm install
-pnpm build
-pnpm --filter ui-grab pack
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> `ui-grab` はこのフォークの公開パッケージ名です。リポジトリは公開準備済みですが、最初の npm 公開にはメンテナーアカウントの npm 認証が必要です。
 
 ### UI Grab を使う理由
 
@@ -73,7 +72,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />

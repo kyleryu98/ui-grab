@@ -106,6 +106,7 @@ We use conventional commits:
 - `chore:` — Maintenance tasks
 - `refactor:` — Code refactoring
 - `test:` — Test additions or changes
+- Commit messages must be written in English
 
 ## Reporting Issues
 

@@ -1,6 +1,6 @@
 {
   "name": "ui-grab",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "description": "Open-source UI context picker for coding agents with built-in Shift multi-select",
   "keywords": [
     "agent",

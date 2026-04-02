@@ -1,3 +1,5 @@
+# ui-grab
+
 <p align="center">코딩 에이전트를 위한 오픈 소스 UI 컨텍스트 선택 도구.</p>
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
@@ -35,18 +37,13 @@
 ### 설치
 
 ```bash
-# 이 포크의 공개 패키지 이름
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# 첫 npm 릴리스 전 로컬 소스 빌드
-pnpm install
-pnpm build
-pnpm --filter ui-grab pack
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-> [!NOTE]
-> `ui-grab`은 이 포크의 공개 패키지 이름입니다. 저장소는 이미 publish 준비가 끝났지만, 첫 공개 npm 릴리스는 유지보수 계정의 npm 인증이 필요합니다.
 
 ### UI Grab이 제공하는 것
 
@@ -76,7 +73,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -100,7 +97,7 @@ export default function Document() {
       <Head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
+            src="https://unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
