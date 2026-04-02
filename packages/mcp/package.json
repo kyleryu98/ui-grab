@@ -1,12 +1,26 @@
 {
-  "name": "@react-grab/mcp",
+  "name": "ui-grab-mcp",
   "version": "0.1.29",
   "bin": {
-    "react-grab-mcp": "./dist/cli.cjs"
+    "ui-grab-mcp": "bin/ui-grab-mcp.js"
   },
   "files": [
-    "dist"
+    "bin",
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
   ],
+  "description": "MCP bridge for UI Grab",
+  "license": "MIT",
+  "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
+  "bugs": {
+    "url": "https://github.com/Yongtaek-Ryu/ui-grab/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yongtaek-Ryu/ui-grab.git"
+  },
   "type": "module",
   "browser": "dist/client.global.js",
   "exports": {
@@ -25,12 +39,12 @@
   },
   "scripts": {
     "dev": "tsup --watch",
-    "build": "rm -rf dist && NODE_ENV=production tsup"
+    "build": "pnpm --filter ui-grab build && node scripts/build.js && rm -rf dist && NODE_ENV=production tsup"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.0",
     "fkill": "^9.0.0",
-    "react-grab": "workspace:*",
+    "ui-grab": "0.1.29",
     "zod": "^3.25.0"
   },
   "devDependencies": {

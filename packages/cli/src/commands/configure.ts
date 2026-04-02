@@ -231,7 +231,7 @@ const CONFIG_OPTIONS: ConfigOption[] = [
   {
     id: "activationKey",
     title: "Activation Key",
-    description: "The key used to activate React Grab (e.g., g, k, space)",
+    description: "The key used to activate UI Grab (e.g., g, k, space)",
   },
   {
     id: "activationMode",
@@ -271,7 +271,7 @@ const comboToString = (combo: KeyCombo): string => {
 export const configure = new Command()
   .name("configure")
   .alias("config")
-  .description("configure React Grab options")
+  .description("configure UI Grab options")
   .option("-y, --yes", "skip confirmation prompts", false)
   .option(
     "-k, --key <key>",
@@ -287,19 +287,14 @@ export const configure = new Command()
     "allow activation inside input fields (true/false)",
   )
   .option("--context-lines <lines>", "max context lines to include")
-  .option(
-    "--cdn <domain>",
-    "CDN domain (e.g., unpkg.com, custom.react-grab.com)",
-  )
+  .option("--cdn <domain>", "CDN domain (e.g., unpkg.com, cdn.example.com)")
   .option(
     "-c, --cwd <cwd>",
     "working directory (defaults to current directory)",
     process.cwd(),
   )
   .action(async (opts) => {
-    console.log(
-      `${pc.magenta("✿")} ${pc.bold("React Grab")} ${pc.gray(VERSION)}`,
-    );
+    console.log(`${pc.magenta("✿")} ${pc.bold("UI Grab")} ${pc.gray(VERSION)}`);
     console.log();
 
     try {
@@ -310,10 +305,10 @@ export const configure = new Command()
       const projectInfo = await detectProject(cwd);
 
       if (!projectInfo.hasReactGrab) {
-        preflightSpinner.fail("React Grab is not installed.");
+        preflightSpinner.fail("UI Grab is not installed.");
         logger.break();
         logger.error(
-          `Run ${highlighter.info("react-grab init")} first to install React Grab.`,
+          `Run ${highlighter.info("ui-grab init")} first to install UI Grab.`,
         );
         logger.break();
         process.exit(1);
@@ -390,7 +385,7 @@ export const configure = new Command()
         opts.contextLines;
 
       logger.break();
-      logger.log(`Configure ${highlighter.info("React Grab")} options:`);
+      logger.log(`Configure ${highlighter.info("UI Grab")} options:`);
       logger.break();
 
       const collectedOptions: ReactGrabOptions = {};
@@ -644,7 +639,7 @@ export const configure = new Command()
 
       logger.break();
       logger.log(
-        `${highlighter.success("Success!")} React Grab options have been configured.`,
+        `${highlighter.success("Success!")} UI Grab options have been configured.`,
       );
       logger.break();
     } catch (error) {

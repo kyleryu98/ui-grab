@@ -359,13 +359,13 @@ const hasReactGrabInFile = (filePath: string): boolean => {
   try {
     const content = readFileSync(filePath, "utf-8");
     const fuzzyPatterns = [
-      /["'`][^"'`]*react-grab/,
-      /react-grab[^"'`]*["'`]/,
-      /<[^>]*react-grab/i,
-      /import[^;]*react-grab/i,
-      /require[^)]*react-grab/i,
-      /from\s+[^;]*react-grab/i,
-      /src[^>]*react-grab/i,
+      /["'`][^"'`]*ui-grab/,
+      /ui-grab[^"'`]*["'`]/,
+      /<[^>]*ui-grab/i,
+      /import[^;]*ui-grab/i,
+      /require[^)]*ui-grab/i,
+      /from\s+[^;]*ui-grab/i,
+      /src[^>]*ui-grab/i,
     ];
     return fuzzyPatterns.some((pattern) => pattern.test(content));
   } catch {
@@ -383,7 +383,7 @@ export const detectReactGrab = (projectRoot: string): boolean => {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
       };
-      if (allDependencies["react-grab"]) {
+      if (allDependencies["ui-grab"]) {
         return true;
       }
     } catch {}
@@ -415,7 +415,7 @@ export const detectReactGrab = (projectRoot: string): boolean => {
   return filesToCheck.some(hasReactGrabInFile);
 };
 
-const AGENT_PACKAGES = ["@react-grab/mcp"];
+const AGENT_PACKAGES = ["ui-grab-mcp"];
 
 export const detectUnsupportedFramework = (
   projectRoot: string,
@@ -471,7 +471,7 @@ export const detectInstalledAgents = (projectRoot: string): string[] => {
 
     return AGENT_PACKAGES.filter((agent) =>
       Boolean(allDependencies[agent]),
-    ).map((agent) => agent.replace("@react-grab/", ""));
+    ).map((agent) => (agent === "ui-grab-mcp" ? "mcp" : agent));
   } catch {
     return [];
   }

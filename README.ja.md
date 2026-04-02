@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/logo.png" alt="UI Grab logo" width="96">
   </a>
 </p>
-<p align="center">The open-source UI context picker for coding agents.</p>
+<p align="center">コーディングエージェント向けのオープンソース UI コンテキストピッカー。</p>
 <p align="center">
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Yongtaek-Ryu/ui-grab/ci.yml?style=flat-square&branch=main" /></a>
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
@@ -39,37 +39,35 @@
 
 ---
 
-### Installation
+### インストール
 
 ```bash
-# Main package
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# Optional MCP bridge
-pnpm add -D ui-grab-mcp
+pnpm install
+pnpm build
+pnpm --filter ui-grab pack
 ```
 
 > [!NOTE]
-> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+> `ui-grab` はこのフォークの公開パッケージ名です。リポジトリは公開準備済みですが、最初の npm 公開にはメンテナーアカウントの npm 認証が必要です。
 
-### Why UI Grab
+### UI Grab を使う理由
 
-- Copy file, component, and HTML context directly from the browser
-- Keep the original React Grab prompt UI and comment history flow
-- Use built-in `Shift + click` multi-select in comment mode
-- Preserve grouped prompt history after submitting multi-element selections
-- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- Keep MCP support optional through a separate `ui-grab-mcp` package
+- ブラウザからファイル、コンポーネント、HTML コンテキストを直接コピー
+- 元の React Grab のプロンプト UI とコメント履歴フローを維持
+- comment mode で `Shift + クリック` の複数選択を標準搭載
+- 複数要素送信後もグループ化されたプロンプト履歴を保持
 
-### Usage
+### 使い方
 
-1. Activate the selection tool from the floating toolbar.
-2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-3. Hold `Shift` and click multiple elements to build a grouped selection.
-4. Release `Shift`, type into the original textarea, and submit.
+1. フローティングツールバーから選択ツールを有効にします。
+2. 要素にカーソルを合わせて `Cmd+C` または `Ctrl+C` で単一要素をコピーします。
+3. `Shift` を押しながら複数要素をクリックしてグループ選択を作ります。
+4. `Shift` を離し、元の textarea に入力して送信します。
 
-### Manual Setup
+### 手動セットアップ
 
 #### Next.js (App Router)
 
@@ -94,33 +92,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 }
 ```
 
-#### Next.js (Pages Router)
-
-```tsx
-import Script from "next/script";
-import { Head, Html, Main, NextScript } from "next/document";
-
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head>
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
-      </Head>
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
-}
-```
-
 #### Vite
 
 ```tsx
@@ -129,36 +100,21 @@ if (import.meta.env.DEV) {
 }
 ```
 
-#### Webpack
-
-```tsx
-if (process.env.NODE_ENV === "development") {
-  import("ui-grab");
-}
-```
-
-### Package Surface
+### パッケージ表面
 
 - Runtime: `ui-grab`
 - Core API: `ui-grab/core`
 - Primitives: `ui-grab/primitives`
 - Styles: `ui-grab/styles.css`
 - CLI: `ui-grab`
-- MCP bridge: `ui-grab-mcp`
 
-### Repository Scope
+### サポート
 
-- Published to npm: `ui-grab`, `ui-grab-mcp`
-- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
-- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
-
-### Support
-
-- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+- リポジトリ: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
 - Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
-- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- This repository is an independent fork and is not maintained by the original React Grab team.
+- upstream 参照: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
+- このリポジトリは独立したフォークであり、元の React Grab チームによって保守されていません。
 
-### License
+### ライセンス
 
-UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.
+UI Grab は MIT ライセンスで配布されます。フォークしたコードを再配布する場合は、元の著作権表示とライセンステキストを保持してください。

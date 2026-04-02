@@ -5,21 +5,19 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "cp README.md packages/react-grab/README.md && turbo run build --filter=react-grab --filter=@react-grab/cli --filter=@react-grab/shadcn-registry && pnpm --filter grab build",
+    "build": "turbo run build --filter=react-grab --filter=@react-grab/cli && pnpm --filter ui-grab build && pnpm --filter ui-grab-mcp build",
     "dev": "turbo dev --filter=react-grab --filter=@react-grab/cli",
     "test": "turbo run test --filter=react-grab --filter=@react-grab/cli",
     "typecheck": "pnpm --filter react-grab typecheck",
     "lint": "pnpm --filter react-grab lint",
     "lint:fix": "pnpm --filter react-grab lint:fix",
     "format": "oxfmt",
-    "extension:dev": "pnpm --filter web-extension dev",
-    "extension:build": "pnpm --filter web-extension build",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "pack:ui-grab": "pnpm --filter ui-grab pack",
+    "pack:ui-grab-mcp": "pnpm --filter ui-grab-mcp pack",
+    "release:dry-run": "pnpm build && npm publish ./packages/grab --dry-run --access public && npm publish ./packages/mcp --dry-run --access public",
+    "release": "pnpm build && npm publish ./packages/grab --access public && npm publish ./packages/mcp --access public"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.10",
     "oxfmt": "^0.27.0",
     "turbo": "^2.6.3",
     "typescript": "^5.9.3"

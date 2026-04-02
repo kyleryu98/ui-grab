@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/logo.png" alt="UI Grab logo" width="96">
   </a>
 </p>
-<p align="center">The open-source UI context picker for coding agents.</p>
+<p align="center">Open source picker kontekstu UI dla agentow kodujacych.</p>
 <p align="center">
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Yongtaek-Ryu/ui-grab/ci.yml?style=flat-square&branch=main" /></a>
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
@@ -39,37 +39,35 @@
 
 ---
 
-### Installation
+### Instalacja
 
 ```bash
-# Main package
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# Optional MCP bridge
-pnpm add -D ui-grab-mcp
+pnpm install
+pnpm build
+pnpm --filter ui-grab pack
 ```
 
 > [!NOTE]
-> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+> `ui-grab` to publiczna nazwa pakietu tego forka. Repozytorium jest gotowe do publikacji, ale pierwsze wydanie npm nadal wymaga uwierzytelnienia npm konta maintainera.
 
-### Why UI Grab
+### Dlaczego UI Grab
 
-- Copy file, component, and HTML context directly from the browser
-- Keep the original React Grab prompt UI and comment history flow
-- Use built-in `Shift + click` multi-select in comment mode
-- Preserve grouped prompt history after submitting multi-element selections
-- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- Keep MCP support optional through a separate `ui-grab-mcp` package
+- Kopiuj kontekst pliku, komponentu i HTML bezposrednio z przegladarki
+- Zachowaj oryginalny interfejs promptu React Grab i historie komentarzy
+- Wbudowany multi-select `Shift + klik` w comment mode
+- Zachowaj historie zgrupowanych promptow po wyborze wielu elementow
 
-### Usage
+### Uzycie
 
-1. Activate the selection tool from the floating toolbar.
-2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-3. Hold `Shift` and click multiple elements to build a grouped selection.
-4. Release `Shift`, type into the original textarea, and submit.
+1. Wlacz narzedzie wyboru z plywajacego paska.
+2. Najedz na element i nacisnij `Cmd+C` lub `Ctrl+C`, aby skopiowac pojedynczy element.
+3. Przytrzymaj `Shift` i kliknij kilka elementow, aby utworzyc zaznaczenie grupowe.
+4. Pusc `Shift`, wpisz tekst w oryginalnym textarea i wyslij.
 
-### Manual Setup
+### Reczna konfiguracja
 
 #### Next.js (App Router)
 
@@ -94,33 +92,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 }
 ```
 
-#### Next.js (Pages Router)
-
-```tsx
-import Script from "next/script";
-import { Head, Html, Main, NextScript } from "next/document";
-
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head>
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
-      </Head>
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
-}
-```
-
 #### Vite
 
 ```tsx
@@ -129,36 +100,21 @@ if (import.meta.env.DEV) {
 }
 ```
 
-#### Webpack
-
-```tsx
-if (process.env.NODE_ENV === "development") {
-  import("ui-grab");
-}
-```
-
-### Package Surface
+### Powierzchnia pakietu
 
 - Runtime: `ui-grab`
 - Core API: `ui-grab/core`
 - Primitives: `ui-grab/primitives`
 - Styles: `ui-grab/styles.css`
 - CLI: `ui-grab`
-- MCP bridge: `ui-grab-mcp`
 
-### Repository Scope
+### Wsparcie
 
-- Published to npm: `ui-grab`, `ui-grab-mcp`
-- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
-- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
-
-### Support
-
-- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+- Repozytorium: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
 - Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
-- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- This repository is an independent fork and is not maintained by the original React Grab team.
+- Referencja upstream: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
+- To repozytorium jest niezaleznym forkiem i nie jest utrzymywane przez oryginalny zespol React Grab.
 
-### License
+### Licencja
 
-UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.
+UI Grab jest dystrybuowany na licencji MIT. Przy redystrybucji kodu z forka zachowaj oryginalna informacje o prawach autorskich i tresc licencji.

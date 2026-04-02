@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
+            src="//unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }`;
 
-  it("should add activationKey option to existing React Grab script", () => {
+  it("should add activationKey option to existing UI Grab script", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("layout.tsx"),
     );
@@ -87,7 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <Script
-          src="//unpkg.com/react-grab/dist/index.global.js"
+          src="//unpkg.com/ui-grab/dist/index.global.js"
           crossOrigin="anonymous"
           strategy="beforeInteractive"
         />
@@ -131,7 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
+            src="//unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -158,7 +158,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     expect(result.newContent).not.toMatch(/\}\)\n\s*\n\s*\/>/);
   });
 
-  it("should add multiple options to React Grab script", () => {
+  it("should add multiple options to UI Grab script", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("layout.tsx"),
     );
@@ -224,7 +224,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
+            src="//unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
             data-options={JSON.stringify({ activationKey: "Alt" })}
@@ -252,7 +252,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     expect(result.newContent).not.toContain('"Alt"');
   });
 
-  it("should fail when React Grab is not found", () => {
+  it("should fail when UI Grab is not found", () => {
     const layoutWithoutReactGrab = `export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -273,7 +273,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const result = previewOptionsTransform("/test", "next", "app", options);
 
     expect(result.success).toBe(false);
-    expect(result.message).toContain("Could not find React Grab");
+    expect(result.message).toContain("Could not find UI Grab");
   });
 
   it("should fail when layout file not found", () => {
@@ -299,7 +299,7 @@ export default function Document() {
     <Html>
       <Head>
         <Script
-          src="//unpkg.com/react-grab/dist/index.global.js"
+          src="//unpkg.com/ui-grab/dist/index.global.js"
           crossOrigin="anonymous"
           strategy="beforeInteractive"
         />
@@ -334,7 +334,7 @@ export default function Document() {
 
 describe("previewOptionsTransform - Vite", () => {
   const entryWithReactGrab = `if (import.meta.env.DEV) {
-  import("react-grab");
+  import("ui-grab");
 }
 
 import React from "react";
@@ -359,7 +359,7 @@ import ReactDOM from "react-dom/client";`;
 
   it("should update existing options in Vite import without duplicating", () => {
     const entryWithExistingOptions = `if (import.meta.env.DEV) {
-  import("react-grab").then((m) => m.init({"activationKey":"g"}));
+  import("ui-grab").then((m) => m.init({"activationKey":"g"}));
 }
 
 import React from "react";
@@ -404,7 +404,7 @@ import ReactDOM from "react-dom/client";`;
     expect(result.newContent).toContain('"maxContextLines":10');
   });
 
-  it("should fail when React Grab import not found", () => {
+  it("should fail when UI Grab import not found", () => {
     const entryWithoutReactGrab = `import React from "react";
 import ReactDOM from "react-dom/client";`;
 
@@ -425,7 +425,7 @@ import ReactDOM from "react-dom/client";`;
 
 describe("previewOptionsTransform - Webpack", () => {
   const entryWithReactGrab = `if (process.env.NODE_ENV === "development") {
-  import("react-grab");
+  import("ui-grab");
 }
 
 import React from "react";
@@ -462,7 +462,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 
   it("should update existing options in Webpack import without duplicating", () => {
     const entryWithExistingOptions = `if (process.env.NODE_ENV === "development") {
-  import("react-grab").then((m) => m.init({"activationKey":"Ctrl+G"}));
+  import("ui-grab").then((m) => m.init({"activationKey":"Ctrl+G"}));
 }
 
 import React from "react";
@@ -549,7 +549,7 @@ describe("applyTransform", () => {
     const result = {
       success: true,
       filePath: "/test/layout.tsx",
-      message: "Update React Grab options",
+      message: "Update UI Grab options",
       originalContent: "old content",
       newContent: "new content with options",
     };
@@ -571,7 +571,7 @@ describe("applyTransform", () => {
     const result = {
       success: true,
       filePath: "/test/layout.tsx",
-      message: "Update React Grab options",
+      message: "Update UI Grab options",
       originalContent: "old content",
       newContent: "new content",
     };
@@ -619,7 +619,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <Script
-          src="//unpkg.com/react-grab/dist/index.global.js"
+          src="//unpkg.com/ui-grab/dist/index.global.js"
           crossOrigin="anonymous"
           strategy="beforeInteractive"
         />

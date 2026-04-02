@@ -1,7 +1,8 @@
 {
   "name": "react-grab",
   "version": "0.1.29",
-  "description": "Select context for coding agents directly from your website",
+  "private": true,
+  "description": "Internal runtime source for the UI Grab fork",
   "keywords": [
     "agent",
     "context",
@@ -9,9 +10,9 @@
     "react",
     "react-grab"
   ],
-  "homepage": "https://react-grab.com",
+  "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
   "bugs": {
-    "url": "https://github.com/aidenybai/react-grab/issues"
+    "url": "https://github.com/Yongtaek-Ryu/ui-grab/issues"
   },
   "license": "MIT",
   "author": {
@@ -20,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aidenybai/react-grab.git"
+    "url": "git+https://github.com/Yongtaek-Ryu/ui-grab.git"
   },
   "bin": {
     "react-grab": "./bin/cli.js"

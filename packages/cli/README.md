@@ -1,65 +1,71 @@
-# @react-grab/cli
+# UI Grab CLI
 
-Interactive CLI to install React Grab in your project.
+Interactive CLI to install and configure UI Grab in your project.
 
 ## Usage
 
 ```bash
-npx grab
+npx ui-grab@latest init
 ```
 
-### Interactive Mode (default)
+## Commands
 
-Running without options starts the interactive wizard:
+- `ui-grab init` configures UI Grab in your app
+- `ui-grab add mcp` installs the `ui-grab-mcp` entry in your agent config
+- `ui-grab remove mcp` removes the MCP entry from your agent config guidance
+- `ui-grab configure` updates an existing installation
+
+### Interactive Setup
 
 ```bash
-npx grab
+npx ui-grab@latest init
 ```
 
-### Non-Interactive Mode
+### Non-Interactive Setup
 
-Pass options to skip prompts:
+Pass options to skip prompts or force a reconfiguration:
 
 ```bash
 # Auto-detect everything and install without prompts
-npx grab -y
+npx ui-grab@latest init -y
 
-# Specify framework
-npx grab -f next -r app -y
+# Reconfigure an existing install
+npx ui-grab@latest init --force
 
-# Use specific package manager
-npx grab -p pnpm -y
+# Set a custom activation key
+npx ui-grab@latest init --key "Meta+Shift+G"
 ```
 
-## Options
+## Init Options
 
-| Option              | Alias | Description                                   | Choices                      |
-| ------------------- | ----- | --------------------------------------------- | ---------------------------- |
-| `--framework`       | `-f`  | Framework to configure                        | `next`, `vite`, `webpack`    |
-| `--package-manager` | `-p`  | Package manager to use                        | `npm`, `yarn`, `pnpm`, `bun` |
-| `--router`          | `-r`  | Next.js router type                           | `app`, `pages`               |
-| `--yes`             | `-y`  | Skip all confirmation prompts                 | -                            |
-| `--skip-install`    | -     | Skip package installation (only modify files) | -                            |
-| `--help`            | `-h`  | Show help                                     | -                            |
-| `--version`         | `-v`  | Show version                                  | -                            |
+| Option           | Alias | Description                                      |
+| ---------------- | ----- | ------------------------------------------------ |
+| `--yes`          | `-y`  | Skip interactive confirmation prompts            |
+| `--force`        | `-f`  | Reconfigure when UI Grab is already installed    |
+| `--key <key>`    | `-k`  | Override the activation key                      |
+| `--skip-install` | -     | Modify files without installing npm dependencies |
+| `--pkg <pkg>`    | -     | Use a custom package source                      |
+| `--cwd <cwd>`    | `-c`  | Run the CLI against a different working tree     |
+| `--help`         | `-h`  | Show help                                        |
+| `--version`      | `-v`  | Show version                                     |
 
 ## Examples
 
 ```bash
 # Interactive setup
-npx grab
+npx ui-grab@latest init
 
 # Quick install with auto-detection
-npx grab -y
+npx ui-grab@latest init -y
 
-# Next.js App Router
-npx grab -f next -r app -y
+# Install MCP support into your agent config
+npx ui-grab@latest add mcp
 
-# Vite with pnpm
-npx grab -f vite -p pnpm -y
+# Reconfigure with a custom activation key
+npx ui-grab@latest init --force --key "Meta+Shift+G"
 
 # Only modify files (skip npm install)
-npx grab --skip-install -y
+npx ui-grab@latest init --skip-install -y
 ```
 
 ## Supported Frameworks
@@ -75,4 +81,4 @@ npx grab --skip-install -y
 
 If the CLI doesn't work for your setup, visit the docs:
 
-https://react-grab.com/docs
+[Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)

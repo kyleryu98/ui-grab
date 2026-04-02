@@ -1,6 +1,6 @@
-# Contributing to React Grab
+# Contributing to UI Grab
 
-Thanks for your interest in contributing to React Grab! This document provides guidelines and instructions for contributing.
+Thanks for your interest in contributing to UI Grab. This repository is an independent fork of React Grab, focused on the reusable runtime, CLI, MCP bridge, and built-in Shift multi-select support.
 
 ## Getting Started
 
@@ -14,8 +14,8 @@ Thanks for your interest in contributing to React Grab! This document provides g
 1. Fork and clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/react-grab.git
-cd react-grab
+git clone https://github.com/YOUR_USERNAME/ui-grab.git
+cd ui-grab
 ```
 
 2. Install dependencies using [@antfu/ni](https://github.com/antfu/ni):
@@ -40,27 +40,14 @@ nr dev
 
 ```
 packages/
-├── react-grab/          # Core library
-├── grab/                # Bundled package (library + CLI, published as `grab`)
-├── cli/                 # CLI implementation (@react-grab/cli)
-├── mcp/                 # MCP server (@react-grab/mcp)
-├── website/             # Documentation site (react-grab.com)
-├── e2e-app/             # E2E test target app (Vite)
-├── gym/                 # Agent testing playground
-└── web-extension/       # Browser extension
+├── react-grab/          # Internal runtime source package
+├── grab/                # Public distribution package, published as `ui-grab`
+├── cli/                 # Internal CLI source bundle
+├── mcp/                 # MCP bridge package, published as `ui-grab-mcp`
+└── e2e-app/             # E2E test target app (Vite)
 ```
 
 ## Development Workflow
-
-### Running the Gym
-
-Test the MCP agent integration in the gym:
-
-```bash
-pnpm --filter @react-grab/gym dev:mcp
-```
-
-The gym runs at `http://localhost:5174` and lets you test react-grab's agent integration via MCP.
 
 ### Running Tests
 
@@ -120,19 +107,9 @@ We use conventional commits:
 - `refactor:` — Code refactoring
 - `test:` — Test additions or changes
 
-### Adding a Changeset
-
-For changes that affect published packages, add a changeset:
-
-```bash
-nr changeset
-```
-
-Follow the prompts to describe your changes. This helps maintain accurate changelogs.
-
 ## Reporting Issues
 
-Found a bug? Have a feature request? [Open an issue](https://github.com/aidenybai/react-grab/issues) with:
+Found a bug? Have a feature request? [Open an issue](https://github.com/Yongtaek-Ryu/ui-grab/issues) with:
 
 - Clear description of the problem or request
 - Steps to reproduce (for bugs)
@@ -142,7 +119,7 @@ Found a bug? Have a feature request? [Open an issue](https://github.com/aidenyba
 ## Community
 
 - Join our [Discord](https://discord.com/invite/G7zxfUzkm7) to discuss ideas and get help
-- Check existing [issues](https://github.com/aidenybai/react-grab/issues) before opening new ones
+- Check existing [issues](https://github.com/Yongtaek-Ryu/ui-grab/issues) before opening new ones
 
 ## License
 

@@ -11,7 +11,7 @@ const VERSION = process.env.VERSION ?? "0.0.1";
 
 export const remove = new Command()
   .name("remove")
-  .description("disconnect React Grab from your agent")
+  .description("disconnect UI Grab from your agent")
   .argument("[agent]", "agent to disconnect (mcp)")
   .option("-y, --yes", "skip confirmation prompts", false)
   .option(
@@ -20,9 +20,7 @@ export const remove = new Command()
     process.cwd(),
   )
   .action(async (agentArg, opts) => {
-    console.log(
-      `${pc.magenta("✿")} ${pc.bold("React Grab")} ${pc.gray(VERSION)}`,
-    );
+    console.log(`${pc.magenta("✿")} ${pc.bold("UI Grab")} ${pc.gray(VERSION)}`);
     console.log();
 
     try {
@@ -33,10 +31,10 @@ export const remove = new Command()
       const projectInfo = await detectProject(cwd);
 
       if (!projectInfo.hasReactGrab) {
-        preflightSpinner.fail("React Grab is not installed.");
+        preflightSpinner.fail("UI Grab is not installed.");
         logger.break();
         logger.error(
-          `Run ${highlighter.info("react-grab init")} first to install React Grab.`,
+          `Run ${highlighter.info("ui-grab init")} first to install UI Grab.`,
         );
         logger.break();
         process.exit(1);
@@ -47,7 +45,7 @@ export const remove = new Command()
       if (agentArg && agentArg !== "mcp") {
         logger.break();
         logger.warn(
-          `Legacy agent packages are deprecated. Uninstall ${highlighter.info(`@react-grab/${agentArg}`)} manually with your package manager.`,
+          `Legacy agent packages are not supported in this fork. Remove ${highlighter.info(agentArg)} manually if you still have custom wiring for it.`,
         );
         logger.break();
         process.exit(0);
@@ -55,7 +53,7 @@ export const remove = new Command()
 
       logger.break();
       logger.warn(
-        "To remove the MCP server, delete the react-grab-mcp entry from your agent's MCP config file.",
+        "To remove the MCP server, delete the ui-grab-mcp entry from your agent's MCP config file.",
       );
       logger.break();
     } catch (error) {

@@ -28,7 +28,7 @@ const makeJsonClient = (
   configPath: path.join(tempDir, "config.json"),
   configKey: "mcpServers",
   format: "json",
-  serverConfig: { command: "npx", args: ["-y", "@react-grab/mcp", "--stdio"] },
+  serverConfig: { command: "npx", args: ["-y", "ui-grab-mcp", "--stdio"] },
   ...overrides,
 });
 
@@ -39,7 +39,7 @@ const makeTomlClient = (
   configPath: path.join(tempDir, "config.toml"),
   configKey: "mcp_servers",
   format: "toml",
-  serverConfig: { command: "npx", args: ["-y", "@react-grab/mcp", "--stdio"] },
+  serverConfig: { command: "npx", args: ["-y", "ui-grab-mcp", "--stdio"] },
   ...overrides,
 });
 
@@ -67,7 +67,7 @@ describe("installJsonClient", () => {
     installJsonClient(client);
 
     const content = JSON.parse(fs.readFileSync(client.configPath, "utf8"));
-    expect(content.mcpServers["react-grab-mcp"]).toEqual(client.serverConfig);
+    expect(content.mcpServers["ui-grab-mcp"]).toEqual(client.serverConfig);
   });
 
   it("should merge into an existing config file", () => {
@@ -83,22 +83,22 @@ describe("installJsonClient", () => {
 
     const content = JSON.parse(fs.readFileSync(client.configPath, "utf8"));
     expect(content.mcpServers["other-server"]).toEqual({ command: "other" });
-    expect(content.mcpServers["react-grab-mcp"]).toEqual(client.serverConfig);
+    expect(content.mcpServers["ui-grab-mcp"]).toEqual(client.serverConfig);
   });
 
-  it("should overwrite existing react-grab-mcp entry", () => {
+  it("should overwrite existing ui-grab-mcp entry", () => {
     const client = makeJsonClient();
     fs.writeFileSync(
       client.configPath,
       JSON.stringify({
-        mcpServers: { "react-grab-mcp": { command: "old" } },
+        mcpServers: { "ui-grab-mcp": { command: "old" } },
       }),
     );
 
     installJsonClient(client);
 
     const content = JSON.parse(fs.readFileSync(client.configPath, "utf8"));
-    expect(content.mcpServers["react-grab-mcp"]).toEqual(client.serverConfig);
+    expect(content.mcpServers["ui-grab-mcp"]).toEqual(client.serverConfig);
   });
 
   it("should create the configKey when it does not exist", () => {
@@ -112,7 +112,7 @@ describe("installJsonClient", () => {
 
     const content = JSON.parse(fs.readFileSync(client.configPath, "utf8"));
     expect(content.someOtherKey).toBe("value");
-    expect(content.mcpServers["react-grab-mcp"]).toEqual(client.serverConfig);
+    expect(content.mcpServers["ui-grab-mcp"]).toEqual(client.serverConfig);
   });
 
   it("should create nested directories if needed", () => {
@@ -124,7 +124,7 @@ describe("installJsonClient", () => {
 
     expect(fs.existsSync(client.configPath)).toBe(true);
     const content = JSON.parse(fs.readFileSync(client.configPath, "utf8"));
-    expect(content.mcpServers["react-grab-mcp"]).toEqual(client.serverConfig);
+    expect(content.mcpServers["ui-grab-mcp"]).toEqual(client.serverConfig);
   });
 
   it("should handle a dot-separated configKey like amp.mcpServers", () => {
@@ -133,7 +133,7 @@ describe("installJsonClient", () => {
     installJsonClient(client);
 
     const content = JSON.parse(fs.readFileSync(client.configPath, "utf8"));
-    expect(content["amp.mcpServers"]["react-grab-mcp"]).toEqual(
+    expect(content["amp.mcpServers"]["ui-grab-mcp"]).toEqual(
       client.serverConfig,
     );
   });
@@ -145,12 +145,12 @@ describe("upsertIntoJsonc", () => {
     const content = `// comment\n{\n  "context_servers": {\n    "existing": {}\n  }\n}`;
     fs.writeFileSync(filePath, content);
 
-    upsertIntoJsonc(filePath, content, "context_servers", "react-grab-mcp", {
+    upsertIntoJsonc(filePath, content, "context_servers", "ui-grab-mcp", {
       command: "npx",
     });
 
     const result = fs.readFileSync(filePath, "utf8");
-    expect(result).toContain('"react-grab-mcp"');
+    expect(result).toContain('"ui-grab-mcp"');
     expect(result).toContain("// comment");
     expect(result).toContain('"existing"');
   });
@@ -160,23 +160,23 @@ describe("upsertIntoJsonc", () => {
     const content = `// comment\n{\n  "theme": "dark"\n}`;
     fs.writeFileSync(filePath, content);
 
-    upsertIntoJsonc(filePath, content, "context_servers", "react-grab-mcp", {
+    upsertIntoJsonc(filePath, content, "context_servers", "ui-grab-mcp", {
       command: "npx",
     });
 
     const result = fs.readFileSync(filePath, "utf8");
     expect(result).toContain('"context_servers"');
-    expect(result).toContain('"react-grab-mcp"');
+    expect(result).toContain('"ui-grab-mcp"');
     expect(result).toContain("// comment");
     expect(result).toContain('"theme"');
   });
 
   it("should overwrite existing server entry", () => {
     const filePath = path.join(tempDir, "settings.json");
-    const content = `{\n  "servers": {\n    "react-grab-mcp": { "old": true }\n  }\n}`;
+    const content = `{\n  "servers": {\n    "ui-grab-mcp": { "old": true }\n  }\n}`;
     fs.writeFileSync(filePath, content);
 
-    upsertIntoJsonc(filePath, content, "servers", "react-grab-mcp", {
+    upsertIntoJsonc(filePath, content, "servers", "ui-grab-mcp", {
       command: "new",
     });
 
@@ -237,7 +237,7 @@ describe("installTomlClient", () => {
     installTomlClient(client);
 
     const content = fs.readFileSync(client.configPath, "utf8");
-    expect(content).toContain("[mcp_servers.react-grab-mcp]");
+    expect(content).toContain("[mcp_servers.ui-grab-mcp]");
     expect(content).toContain('command = "npx"');
   });
 
@@ -252,14 +252,14 @@ describe("installTomlClient", () => {
 
     const content = fs.readFileSync(client.configPath, "utf8");
     expect(content).toContain("[mcp_servers.other]");
-    expect(content).toContain("[mcp_servers.react-grab-mcp]");
+    expect(content).toContain("[mcp_servers.ui-grab-mcp]");
   });
 
-  it("should replace an existing react-grab-mcp section", () => {
+  it("should replace an existing ui-grab-mcp section", () => {
     const client = makeTomlClient();
     fs.writeFileSync(
       client.configPath,
-      '[mcp_servers.react-grab-mcp]\ncommand = "old"\n\n[other]\nkey = "val"\n',
+      '[mcp_servers.ui-grab-mcp]\ncommand = "old"\n\n[other]\nkey = "val"\n',
     );
 
     installTomlClient(client);

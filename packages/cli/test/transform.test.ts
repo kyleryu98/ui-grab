@@ -46,7 +46,7 @@ export default function RootLayout({
   );
 }`;
 
-  it("should add React Grab to layout.tsx", () => {
+  it("should add UI Grab to layout.tsx", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("layout.tsx"),
     );
@@ -57,10 +57,10 @@ export default function RootLayout({
     expect(result.success).toBe(true);
     expect(result.filePath).toContain("layout.tsx");
     expect(result.newContent).toContain('import Script from "next/script"');
-    expect(result.newContent).toContain("react-grab");
+    expect(result.newContent).toContain("ui-grab");
   });
 
-  it("should add React Grab with agent to layout.tsx (no provider package)", () => {
+  it("should add UI Grab with agent to layout.tsx (no provider package)", () => {
     const layoutWithHead = `export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -78,18 +78,18 @@ export default function RootLayout({
     const result = previewTransform("/test", "next", "app", "mcp", false);
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain("react-grab");
+    expect(result.newContent).toContain("ui-grab");
     expect(result.newContent).not.toContain("@react-grab/");
   });
 
-  it("should not duplicate if React Grab already exists", () => {
+  it("should not duplicate if UI Grab already exists", () => {
     const layoutWithReactGrab = `import Script from "next/script";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <Script src="//unpkg.com/react-grab/dist/index.global.js" />
+        <Script src="//unpkg.com/ui-grab/dist/index.global.js" />
       </head>
       <body>{children}</body>
     </html>
@@ -125,8 +125,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const result = previewTransform("/test", "next", "app", "mcp", false);
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain("react-grab");
-    expect(result.newContent).not.toContain("@react-grab/mcp");
+    expect(result.newContent).toContain("ui-grab");
+    expect(result.newContent).not.toContain("ui-grab-mcp");
   });
 
   it("should fail when layout file not found", () => {
@@ -150,7 +150,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );`;
 
-  it("should add React Grab to entry file", () => {
+  it("should add UI Grab to entry file", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("main.tsx"),
     );
@@ -159,11 +159,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     const result = previewTransform("/test", "vite", "unknown", "none", false);
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain('import("react-grab")');
+    expect(result.newContent).toContain('import("ui-grab")');
     expect(result.newContent).toContain("import.meta.env.DEV");
   });
 
-  it("should add React Grab with agent to entry file (no provider package)", () => {
+  it("should add UI Grab with agent to entry file (no provider package)", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("main.tsx"),
     );
@@ -172,7 +172,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     const result = previewTransform("/test", "vite", "unknown", "mcp", false);
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain("react-grab");
+    expect(result.newContent).toContain("ui-grab");
     expect(result.newContent).not.toContain("@react-grab/");
   });
 
@@ -185,8 +185,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     const result = previewTransform("/test", "vite", "unknown", "mcp", false);
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain("react-grab");
-    expect(result.newContent).not.toContain("@react-grab/mcp");
+    expect(result.newContent).toContain("ui-grab");
+    expect(result.newContent).not.toContain("ui-grab-mcp");
   });
 });
 
@@ -201,7 +201,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );`;
 
-  it("should add React Grab to entry file", () => {
+  it("should add UI Grab to entry file", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("index.tsx"),
     );
@@ -216,11 +216,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     );
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain('import("react-grab")');
+    expect(result.newContent).toContain('import("ui-grab")');
     expect(result.newContent).toContain("process.env.NODE_ENV");
   });
 
-  it("should add React Grab with agent to entry file (no provider package)", () => {
+  it("should add UI Grab with agent to entry file (no provider package)", () => {
     mockExistsSync.mockImplementation((path) =>
       String(path).endsWith("main.tsx"),
     );
@@ -235,7 +235,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     );
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain("react-grab");
+    expect(result.newContent).toContain("ui-grab");
     expect(result.newContent).not.toContain("@react-grab/");
   });
 });
@@ -252,7 +252,7 @@ describe("previewTransform - Next.js Pages Router", () => {
     expect(result.message).toContain("export default function Document()");
   });
 
-  it("should add React Grab to existing _document.tsx", () => {
+  it("should add UI Grab to existing _document.tsx", () => {
     const documentContent = `import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
@@ -275,7 +275,7 @@ export default function Document() {
     const result = previewTransform("/test", "next", "pages", "none", false);
 
     expect(result.success).toBe(true);
-    expect(result.newContent).toContain("react-grab");
+    expect(result.newContent).toContain("ui-grab");
     expect(result.newContent).toContain('import Script from "next/script"');
   });
 });
@@ -290,13 +290,13 @@ describe("previewTransform - Vite edge cases", () => {
     expect(result.message).toContain("Could not find entry file");
   });
 
-  it("should detect existing React Grab in index.html as already installed", () => {
+  it("should detect existing UI Grab in index.html as already installed", () => {
     const indexWithReactGrab = `<!doctype html>
 <html lang="en">
   <head>
     <script type="module">
       if (import.meta.env.DEV) {
-        import("react-grab");
+        import("ui-grab");
       }
     </script>
   </head>
@@ -480,9 +480,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <Script src="//unpkg.com/react-grab/dist/index.global.js" strategy="beforeInteractive" />
+        <Script src="//unpkg.com/ui-grab/dist/index.global.js" strategy="beforeInteractive" />
         {process.env.NODE_ENV === "development" && (
-          <Script src="//unpkg.com/@react-grab/mcp/dist/client.global.js" strategy="lazyOnload" />
+          <Script src="//unpkg.com/ui-grab-mcp/dist/client.global.js" strategy="lazyOnload" />
         )}
       </head>
       <body>{children}</body>
@@ -498,8 +498,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const result = previewAgentRemoval("/test", "next", "app", "mcp");
 
     expect(result.success).toBe(true);
-    expect(result.newContent).not.toContain("@react-grab/mcp");
-    expect(result.newContent).toContain("react-grab");
+    expect(result.newContent).not.toContain("ui-grab-mcp");
+    expect(result.newContent).toContain("ui-grab");
   });
 });
 

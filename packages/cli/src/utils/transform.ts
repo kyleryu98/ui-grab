@@ -46,14 +46,14 @@ export interface PackageJsonTransformResult {
 
 const hasReactGrabCode = (content: string): boolean => {
   const fuzzyPatterns = [
-    /["'`][^"'`]*react-grab/,
-    /react-grab[^"'`]*["'`]/,
-    /<[^>]*react-grab/i,
-    /import[^;]*react-grab/i,
-    /require[^)]*react-grab/i,
-    /from\s+[^;]*react-grab/i,
-    /src[^>]*react-grab/i,
-    /href[^>]*react-grab/i,
+    /["'`][^"'`]*ui-grab/,
+    /ui-grab[^"'`]*["'`]/,
+    /<[^>]*ui-grab/i,
+    /import[^;]*ui-grab/i,
+    /require[^)]*ui-grab/i,
+    /from\s+[^;]*ui-grab/i,
+    /src[^>]*ui-grab/i,
+    /href[^>]*ui-grab/i,
   ];
   return fuzzyPatterns.some((pattern) => pattern.test(content));
 };
@@ -170,6 +170,14 @@ const findTanStackRootFile = (projectRoot: string): string | null => {
   return null;
 };
 
+const getAgentPackageName = (agent: string): string | null => {
+  if (agent === "mcp") {
+    return "ui-grab-mcp";
+  }
+
+  return null;
+};
+
 const addAgentToExistingNextApp = (
   originalContent: string,
   agent: AgentIntegration,
@@ -179,12 +187,20 @@ const addAgentToExistingNextApp = (
     return {
       success: true,
       filePath,
-      message: "React Grab is already configured",
+      message: "UI Grab is already configured",
       noChanges: true,
     };
   }
 
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
+
   if (originalContent.includes(agentPackage)) {
     return {
       success: true,
@@ -202,7 +218,7 @@ const addAgentToExistingNextApp = (
         )}`;
 
   const reactGrabBlockMatch = originalContent.match(
-    /\{process\.env\.NODE_ENV\s*===\s*["']development["']\s*&&\s*\(\s*<Script[^>]*react-grab[^>]*\/>\s*\)\}/is,
+    /\{process\.env\.NODE_ENV\s*===\s*["']development["']\s*&&\s*\(\s*<Script[^>]*ui-grab[^>]*\/>\s*\)\}/is,
   );
 
   if (reactGrabBlockMatch) {
@@ -219,9 +235,7 @@ const addAgentToExistingNextApp = (
     };
   }
 
-  const bareScriptMatch = originalContent.match(
-    /<Script[^>]*react-grab[^>]*\/>/i,
-  );
+  const bareScriptMatch = originalContent.match(/<Script[^>]*ui-grab[^>]*\/>/i);
 
   if (bareScriptMatch) {
     const newContent = originalContent.replace(
@@ -240,7 +254,7 @@ const addAgentToExistingNextApp = (
   return {
     success: false,
     filePath,
-    message: "Could not find React Grab script to add agent after",
+    message: "Could not find UI Grab script to add agent after",
   };
 };
 
@@ -253,12 +267,20 @@ const addAgentToExistingImport = (
     return {
       success: true,
       filePath,
-      message: "React Grab is already configured",
+      message: "UI Grab is already configured",
       noChanges: true,
     };
   }
 
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
+
   if (originalContent.includes(agentPackage)) {
     return {
       success: true,
@@ -270,7 +292,7 @@ const addAgentToExistingImport = (
 
   const agentImport = `import("${agentPackage}/client");`;
   const reactGrabImportMatch = originalContent.match(
-    /import\s*\(\s*["']react-grab["']\s*\);?/,
+    /import\s*\(\s*["']ui-grab["']\s*\);?/,
   );
 
   if (reactGrabImportMatch) {
@@ -292,7 +314,7 @@ const addAgentToExistingImport = (
   return {
     success: false,
     filePath,
-    message: "Could not find React Grab import to add agent after",
+    message: "Could not find UI Grab import to add agent after",
   };
 };
 
@@ -305,12 +327,20 @@ const addAgentToExistingTanStack = (
     return {
       success: true,
       filePath,
-      message: "React Grab is already configured",
+      message: "UI Grab is already configured",
       noChanges: true,
     };
   }
 
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
+
   if (originalContent.includes(agentPackage)) {
     return {
       success: true,
@@ -322,7 +352,7 @@ const addAgentToExistingTanStack = (
 
   const agentImport = `void import("${agentPackage}/client");`;
   const reactGrabImportMatch = originalContent.match(
-    /void\s+import\s*\(\s*["']react-grab["']\s*\);?/,
+    /void\s+import\s*\(\s*["']ui-grab["']\s*\);?/,
   );
 
   if (reactGrabImportMatch) {
@@ -344,7 +374,7 @@ const addAgentToExistingTanStack = (
   return {
     success: false,
     filePath,
-    message: "Could not find React Grab import to add agent after",
+    message: "Could not find UI Grab import to add agent after",
   };
 };
 
@@ -379,7 +409,7 @@ const transformNextAppRouter = (
       success: true,
       filePath: layoutPath,
       message:
-        "React Grab is already installed" +
+        "UI Grab is already installed" +
         (hasReactGrabInInstrumentationFile
           ? " in instrumentation-client"
           : " in this file"),
@@ -418,8 +448,7 @@ const transformNextAppRouter = (
   return {
     success: true,
     filePath: layoutPath,
-    message:
-      "Add React Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
+    message: "Add UI Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
     originalContent,
     newContent,
   };
@@ -439,7 +468,7 @@ const transformNextPagesRouter = (
       filePath: "",
       message:
         "Could not find pages/_document.tsx or pages/_document.jsx.\n\n" +
-        "To set up React Grab with Pages Router, create pages/_document.tsx with:\n\n" +
+        "To set up UI Grab with Pages Router, create pages/_document.tsx with:\n\n" +
         '  import { Html, Head, Main, NextScript } from "next/document";\n' +
         '  import Script from "next/script";\n\n' +
         "  export default function Document() {\n" +
@@ -447,7 +476,7 @@ const transformNextPagesRouter = (
         "      <Html>\n" +
         "        <Head>\n" +
         '          {process.env.NODE_ENV === "development" && (\n' +
-        '            <Script src="//unpkg.com/react-grab/dist/index.global.js" strategy="beforeInteractive" />\n' +
+        '            <Script src="//unpkg.com/ui-grab/dist/index.global.js" strategy="beforeInteractive" />\n' +
         "          )}\n" +
         "        </Head>\n" +
         "        <body>\n" +
@@ -475,7 +504,7 @@ const transformNextPagesRouter = (
       success: true,
       filePath: documentPath,
       message:
-        "React Grab is already installed" +
+        "UI Grab is already installed" +
         (hasReactGrabInInstrumentationFile
           ? " in instrumentation-client"
           : " in this file"),
@@ -504,8 +533,7 @@ const transformNextPagesRouter = (
   return {
     success: true,
     filePath: documentPath,
-    message:
-      "Add React Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
+    message: "Add UI Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
     originalContent,
     newContent,
   };
@@ -525,7 +553,7 @@ const checkExistingInstallation = (
   return {
     success: true,
     filePath,
-    message: "React Grab is already installed in this file",
+    message: "UI Grab is already installed in this file",
     noChanges: true,
   };
 };
@@ -573,8 +601,7 @@ const transformVite = (
   return {
     success: true,
     filePath: entryPath,
-    message:
-      "Add React Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
+    message: "Add UI Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
     originalContent,
     newContent,
   };
@@ -611,8 +638,7 @@ const transformWebpack = (
   return {
     success: true,
     filePath: entryPath,
-    message:
-      "Add React Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
+    message: "Add UI Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
     originalContent,
     newContent,
   };
@@ -632,11 +658,11 @@ const transformTanStack = (
       filePath: "",
       message:
         "Could not find src/routes/__root.tsx or app/routes/__root.tsx.\n\n" +
-        "To set up React Grab with TanStack Start, add this to your root route component:\n\n" +
+        "To set up UI Grab with TanStack Start, add this to your root route component:\n\n" +
         '  import { useEffect } from "react";\n\n' +
         "  useEffect(() => {\n" +
         "    if (import.meta.env.DEV) {\n" +
-        '      void import("react-grab");\n' +
+        '      void import("ui-grab");\n' +
         "    }\n" +
         "  }, []);",
     };
@@ -654,7 +680,7 @@ const transformTanStack = (
     return {
       success: true,
       filePath: rootPath,
-      message: "React Grab is already installed in this file",
+      message: "UI Grab is already installed in this file",
       noChanges: true,
     };
   }
@@ -705,8 +731,7 @@ const transformTanStack = (
   return {
     success: true,
     filePath: rootPath,
-    message:
-      "Add React Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
+    message: "Add UI Grab" + (agent !== "none" ? ` with ${agent} agent` : ""),
     originalContent,
     newContent,
   };
@@ -767,7 +792,7 @@ export const previewTransform = (
       return {
         success: false,
         filePath: "",
-        message: `Unknown framework: ${framework}. Please add React Grab manually.`,
+        message: `Unknown framework: ${framework}. Please add UI Grab manually.`,
       };
   }
 };
@@ -820,14 +845,7 @@ const getPackageExecutor = (packageManager: PackageManager): string => {
 };
 
 const AGENT_PACKAGES: Record<string, string> = {
-  "claude-code": "@react-grab/claude-code@latest",
-  cursor: "@react-grab/cursor@latest",
-  opencode: "@react-grab/opencode@latest",
-  codex: "@react-grab/codex@latest",
-  gemini: "@react-grab/gemini@latest",
-  amp: "@react-grab/amp@latest",
-  droid: "@react-grab/droid@latest",
-  copilot: "@react-grab/copilot@latest",
+  mcp: "ui-grab-mcp@latest",
 };
 
 const getAgentPrefix = (
@@ -1084,14 +1102,14 @@ const addOptionsToNextScript = (
   filePath: string,
 ): TransformResult => {
   const reactGrabScriptMatch = originalContent.match(
-    /(<Script[\s\S]*?react-grab[\s\S]*?)\s*(\/?>)/i,
+    /(<Script[\s\S]*?ui-grab[\s\S]*?)\s*(\/?>)/i,
   );
 
   if (!reactGrabScriptMatch) {
     return {
       success: false,
       filePath,
-      message: "Could not find React Grab Script tag",
+      message: "Could not find UI Grab Script tag",
     };
   }
 
@@ -1120,7 +1138,7 @@ const addOptionsToNextScript = (
   return {
     success: true,
     filePath,
-    message: "Update React Grab options",
+    message: "Update UI Grab options",
     originalContent,
     newContent,
   };
@@ -1132,19 +1150,19 @@ const addOptionsToViteScript = (
   filePath: string,
 ): TransformResult => {
   const reactGrabImportWithInitMatch = originalContent.match(
-    /import\s*\(\s*["']react-grab["']\s*\)(?:\.then\s*\(\s*\(m\)\s*=>\s*m\.init\s*\([^)]*\)\s*\))?/,
+    /import\s*\(\s*["']ui-grab["']\s*\)(?:\.then\s*\(\s*\(m\)\s*=>\s*m\.init\s*\([^)]*\)\s*\))?/,
   );
 
   if (!reactGrabImportWithInitMatch) {
     return {
       success: false,
       filePath,
-      message: "Could not find React Grab import",
+      message: "Could not find UI Grab import",
     };
   }
 
   const optionsJson = formatOptionsAsJson(options);
-  const newImport = `import("react-grab").then((m) => m.init(${optionsJson}))`;
+  const newImport = `import("ui-grab").then((m) => m.init(${optionsJson}))`;
 
   const newContent = originalContent.replace(
     reactGrabImportWithInitMatch[0],
@@ -1154,7 +1172,7 @@ const addOptionsToViteScript = (
   return {
     success: true,
     filePath,
-    message: "Update React Grab options",
+    message: "Update UI Grab options",
     originalContent,
     newContent,
   };
@@ -1166,19 +1184,19 @@ const addOptionsToWebpackImport = (
   filePath: string,
 ): TransformResult => {
   const reactGrabImportWithInitMatch = originalContent.match(
-    /import\s*\(\s*["']react-grab["']\s*\)(?:\.then\s*\(\s*\(m\)\s*=>\s*m\.init\s*\([^)]*\)\s*\))?/,
+    /import\s*\(\s*["']ui-grab["']\s*\)(?:\.then\s*\(\s*\(m\)\s*=>\s*m\.init\s*\([^)]*\)\s*\))?/,
   );
 
   if (!reactGrabImportWithInitMatch) {
     return {
       success: false,
       filePath,
-      message: "Could not find React Grab import",
+      message: "Could not find UI Grab import",
     };
   }
 
   const optionsJson = formatOptionsAsJson(options);
-  const newImport = `import("react-grab").then((m) => m.init(${optionsJson}))`;
+  const newImport = `import("ui-grab").then((m) => m.init(${optionsJson}))`;
 
   const newContent = originalContent.replace(
     reactGrabImportWithInitMatch[0],
@@ -1188,7 +1206,7 @@ const addOptionsToWebpackImport = (
   return {
     success: true,
     filePath,
-    message: "Update React Grab options",
+    message: "Update UI Grab options",
     originalContent,
     newContent,
   };
@@ -1200,19 +1218,19 @@ const addOptionsToTanStackImport = (
   filePath: string,
 ): TransformResult => {
   const reactGrabImportWithInitMatch = originalContent.match(
-    /(?:void\s+import\s*\(\s*["']react-grab["']\s*\)|import\s*\(\s*["']react-grab\/core["']\s*\)\.then\s*\(\s*\(\s*\{\s*init\s*\}\s*\)\s*=>\s*init\s*\([^)]*\)\s*\))/,
+    /(?:void\s+import\s*\(\s*["']ui-grab["']\s*\)|import\s*\(\s*["']ui-grab\/core["']\s*\)\.then\s*\(\s*\(\s*\{\s*init\s*\}\s*\)\s*=>\s*init\s*\([^)]*\)\s*\))/,
   );
 
   if (!reactGrabImportWithInitMatch) {
     return {
       success: false,
       filePath,
-      message: "Could not find React Grab import",
+      message: "Could not find UI Grab import",
     };
   }
 
   const optionsJson = formatOptionsAsJson(options);
-  const newImport = `import("react-grab/core").then(({ init }) => init(${optionsJson}))`;
+  const newImport = `import("ui-grab/core").then(({ init }) => init(${optionsJson}))`;
 
   const newContent = originalContent.replace(
     reactGrabImportWithInitMatch[0],
@@ -1222,7 +1240,7 @@ const addOptionsToTanStackImport = (
   return {
     success: true,
     filePath,
-    message: "Update React Grab options",
+    message: "Update UI Grab options",
     originalContent,
     newContent,
   };
@@ -1240,7 +1258,7 @@ export const previewOptionsTransform = (
     return {
       success: false,
       filePath: "",
-      message: "Could not find file containing React Grab configuration",
+      message: "Could not find file containing UI Grab configuration",
     };
   }
 
@@ -1250,7 +1268,7 @@ export const previewOptionsTransform = (
     return {
       success: false,
       filePath,
-      message: "Could not find React Grab code in the file",
+      message: "Could not find UI Grab code in the file",
     };
   }
 
@@ -1277,7 +1295,14 @@ const removeAgentFromNextApp = (
   agent: string,
   filePath: string,
 ): TransformResult => {
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
 
   if (!originalContent.includes(agentPackage)) {
     return {
@@ -1326,7 +1351,14 @@ const removeAgentFromVite = (
   agent: string,
   filePath: string,
 ): TransformResult => {
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
 
   if (!originalContent.includes(agentPackage)) {
     return {
@@ -1366,7 +1398,14 @@ const removeAgentFromWebpack = (
   agent: string,
   filePath: string,
 ): TransformResult => {
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
 
   if (!originalContent.includes(agentPackage)) {
     return {
@@ -1406,7 +1445,14 @@ const removeAgentFromTanStack = (
   agent: string,
   filePath: string,
 ): TransformResult => {
-  const agentPackage = `@react-grab/${agent}`;
+  const agentPackage = getAgentPackageName(agent);
+  if (!agentPackage) {
+    return {
+      success: false,
+      filePath,
+      message: `Unknown agent package: ${agent}`,
+    };
+  }
 
   if (!originalContent.includes(agentPackage)) {
     return {
@@ -1453,7 +1499,7 @@ export const previewAgentRemoval = (
     return {
       success: true,
       filePath: "",
-      message: "Could not find file containing React Grab configuration",
+      message: "Could not find file containing UI Grab configuration",
       noChanges: true,
     };
   }
@@ -1564,17 +1610,17 @@ export const previewCdnTransform = (
     return {
       success: false,
       filePath: "",
-      message: "Could not find React Grab file",
+      message: "Could not find UI Grab file",
     };
   }
   const originalContent = readFileSync(filePath, "utf-8");
   const newContent = originalContent
     .replace(
-      /(https?:)?\/\/[^/\s"']+(?=\/(?:@?react-grab))/g,
+      /(https?:)?\/\/[^/\s"']+(?=\/(?:@?ui-grab))/g,
       `//${targetCdnDomain}`,
     )
     .replace(
-      /(https?:)?\/\/[^/\s"']*react-grab[^/\s"']*\.com(?=\/script\.js)/g,
+      /(https?:)?\/\/[^/\s"']*ui-grab[^/\s"']*\.com(?=\/script\.js)/g,
       `//${targetCdnDomain}`,
     );
   if (newContent === originalContent) {

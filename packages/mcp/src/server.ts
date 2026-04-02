@@ -46,7 +46,7 @@ const formatContext = (context: AgentContext): string => {
 
 const createMcpServer = (): McpServer => {
   const server = new McpServer(
-    { name: "react-grab-mcp", version: "0.1.0" },
+    { name: "ui-grab-mcp", version: "0.1.0" },
     { capabilities: { logging: {} } },
   );
 
@@ -54,7 +54,7 @@ const createMcpServer = (): McpServer => {
     "get_element_context",
     {
       description:
-        "Get the latest React Grab context that was submitted. Returns the most recent UI element selection with its prompt.",
+        "Get the latest UI Grab context that was submitted. Returns the most recent UI element selection with its prompt.",
     },
     async () => {
       if (!latestContext) {
@@ -241,15 +241,12 @@ export const startMcpServer = async ({
     await mcpServer.server.connect(transport);
 
     startHttpServer(port).then(
-      () =>
-        console.error(`React Grab context server listening on port ${port}`),
+      () => console.error(`UI Grab context server listening on port ${port}`),
       (error) => console.error(`Failed to start context server: ${error}`),
     );
     return;
   }
 
   await startHttpServer(port);
-  console.log(
-    `React Grab MCP server listening on http://localhost:${port}/mcp`,
-  );
+  console.log(`UI Grab MCP server listening on http://localhost:${port}/mcp`);
 };

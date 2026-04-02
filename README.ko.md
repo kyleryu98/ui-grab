@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/logo.png" alt="UI Grab logo" width="96">
   </a>
 </p>
-<p align="center">The open-source UI context picker for coding agents.</p>
+<p align="center">코딩 에이전트를 위한 오픈 소스 UI 컨텍스트 선택 도구.</p>
 <p align="center">
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Yongtaek-Ryu/ui-grab/ci.yml?style=flat-square&branch=main" /></a>
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
@@ -39,37 +39,38 @@
 
 ---
 
-### Installation
+### 설치
 
 ```bash
-# Main package
+# 이 포크의 공개 패키지 이름
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# Optional MCP bridge
-pnpm add -D ui-grab-mcp
+# 첫 npm 릴리스 전 로컬 소스 빌드
+pnpm install
+pnpm build
+pnpm --filter ui-grab pack
 ```
 
 > [!NOTE]
-> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+> `ui-grab`은 이 포크의 공개 패키지 이름입니다. 저장소는 이미 publish 준비가 끝났지만, 첫 공개 npm 릴리스는 유지보수 계정의 npm 인증이 필요합니다.
 
-### Why UI Grab
+### UI Grab이 제공하는 것
 
-- Copy file, component, and HTML context directly from the browser
-- Keep the original React Grab prompt UI and comment history flow
-- Use built-in `Shift + click` multi-select in comment mode
-- Preserve grouped prompt history after submitting multi-element selections
-- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- Keep MCP support optional through a separate `ui-grab-mcp` package
+- 브라우저에서 바로 파일, 컴포넌트, HTML 컨텍스트를 복사
+- 기존 React Grab 프롬프트 UI와 comment history 흐름 유지
+- comment mode에서 기본 내장된 `Shift + 클릭` 다중 선택
+- 여러 요소를 묶어 제출한 뒤에도 그룹 프롬프트 기록 유지
+- `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, `ui-grab/styles.css` 공개 surface 유지
 
-### Usage
+### 사용 방법
 
-1. Activate the selection tool from the floating toolbar.
-2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-3. Hold `Shift` and click multiple elements to build a grouped selection.
-4. Release `Shift`, type into the original textarea, and submit.
+1. 플로팅 툴바에서 선택 기능을 활성화합니다.
+2. 요소에 마우스를 올리고 `Cmd+C` 또는 `Ctrl+C`로 단일 요소를 복사합니다.
+3. `Shift`를 누른 채 여러 요소를 클릭해 그룹 선택을 만듭니다.
+4. `Shift`를 떼고 기본 textarea에 입력한 뒤 제출합니다.
 
-### Manual Setup
+### 수동 설정
 
 #### Next.js (App Router)
 
@@ -102,7 +103,7 @@ import { Head, Html, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="ko">
       <Head>
         {process.env.NODE_ENV === "development" && (
           <Script
@@ -137,28 +138,22 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-### Package Surface
+### 패키지 surface
 
-- Runtime: `ui-grab`
+- 런타임: `ui-grab`
 - Core API: `ui-grab/core`
 - Primitives: `ui-grab/primitives`
 - Styles: `ui-grab/styles.css`
 - CLI: `ui-grab`
-- MCP bridge: `ui-grab-mcp`
+- 에이전트 연동은 현재 upstream 호환 방식을 유지하며, MCP는 `ui-grab add mcp`로 연결할 수 있습니다
 
-### Repository Scope
+### 지원
 
-- Published to npm: `ui-grab`, `ui-grab-mcp`
-- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
-- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
+- 저장소: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+- 이슈: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
+- 원본 참고: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
+- 이 저장소는 독립 포크이며, 원래 React Grab 팀이 유지보수하지 않습니다.
 
-### Support
+### 라이선스
 
-- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
-- Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
-- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- This repository is an independent fork and is not maintained by the original React Grab team.
-
-### License
-
-UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.
+UI Grab은 MIT 라이선스로 배포됩니다. 포크된 코드를 재배포할 때는 원본 저작권 고지와 라이선스 문구를 유지하세요.

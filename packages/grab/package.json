@@ -1,29 +1,32 @@
 {
-  "name": "grab",
+  "name": "ui-grab",
   "version": "0.1.29",
-  "description": "Select context for coding agents directly from your website",
+  "description": "Open-source UI context picker for coding agents with built-in Shift multi-select",
   "keywords": [
     "agent",
+    "codex",
     "context",
+    "copilot",
+    "cursor",
     "grab",
     "react",
-    "react-grab"
+    "react-grab",
+    "ui-grab"
   ],
-  "homepage": "https://react-grab.com",
+  "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
   "bugs": {
-    "url": "https://github.com/aidenybai/react-grab/issues"
+    "url": "https://github.com/Yongtaek-Ryu/ui-grab/issues"
   },
   "license": "MIT",
   "author": {
-    "name": "Aiden Bai",
-    "email": "aiden@million.dev"
+    "name": "Yongtaek Ryu"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aidenybai/react-grab.git"
+    "url": "git+https://github.com/Yongtaek-Ryu/ui-grab.git"
   },
   "bin": {
-    "grab": "./bin/cli.js"
+    "ui-grab": "bin/cli.js"
   },
   "files": [
     "bin",
@@ -59,6 +62,18 @@
         "default": "./dist/core/index.cjs"
       }
     },
+    "./primitives": {
+      "import": {
+        "types": "./dist/primitives.d.ts",
+        "default": "./dist/primitives.js"
+      },
+      "require": {
+        "types": "./dist/primitives.d.cts",
+        "default": "./dist/primitives.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
+    "./dist/styles.css": "./dist/styles.css",
     "./dist/*": "./dist/*.js",
     "./dist/*.js": "./dist/*.js",
     "./dist/*.cjs": "./dist/*.cjs"
@@ -70,6 +85,28 @@
     "build": "node scripts/build.js"
   },
   "dependencies": {
-    "@react-grab/cli": "workspace:*"
+    "@antfu/ni": "^0.23.0",
+    "commander": "^14.0.0",
+    "ignore": "^7.0.5",
+    "jsonc-parser": "^3.3.1",
+    "ora": "^8.2.0",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2",
+    "smol-toml": "^1.6.0",
+    "@medv/finder": "^4.0.2",
+    "bippy": "^0.5.32",
+    "element-source": "^0.0.3",
+    "solid-js": "^1.9.10"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

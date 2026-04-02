@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/logo.png" alt="UI Grab logo" width="96">
   </a>
 </p>
-<p align="center">The open-source UI context picker for coding agents.</p>
+<p align="center">為編碼代理打造的開源 UI 上下文擷取工具。</p>
 <p align="center">
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Yongtaek-Ryu/ui-grab/ci.yml?style=flat-square&branch=main" /></a>
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
@@ -39,37 +39,38 @@
 
 ---
 
-### Installation
+### 安裝
 
 ```bash
-# Main package
+# 此分叉的公開套件名稱
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# Optional MCP bridge
-pnpm add -D ui-grab-mcp
+# 首次 npm 發佈前的本地建置方式
+pnpm install
+pnpm build
+pnpm --filter ui-grab pack
 ```
 
 > [!NOTE]
-> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+> `ui-grab` 是此分叉的公開套件名稱。儲存庫已具備發佈條件，但首次公開 npm 發佈仍需要維護者帳號完成 npm 驗證。
 
-### Why UI Grab
+### 為什麼選擇 UI Grab
 
-- Copy file, component, and HTML context directly from the browser
-- Keep the original React Grab prompt UI and comment history flow
-- Use built-in `Shift + click` multi-select in comment mode
-- Preserve grouped prompt history after submitting multi-element selections
-- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- Keep MCP support optional through a separate `ui-grab-mcp` package
+- 直接從瀏覽器複製檔案、元件與 HTML 上下文
+- 保留原始 React Grab 的提示輸入 UI 與留言歷史流程
+- 在 comment mode 中內建 `Shift + 點擊` 多選
+- 多元素提交後仍保留群組提示歷史
+- 保持 `ui-grab`、`ui-grab/core`、`ui-grab/primitives` 與 `ui-grab/styles.css` 公開入口
 
-### Usage
+### 使用方式
 
-1. Activate the selection tool from the floating toolbar.
-2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-3. Hold `Shift` and click multiple elements to build a grouped selection.
-4. Release `Shift`, type into the original textarea, and submit.
+1. 在浮動工具列中啟用選取工具。
+2. 將滑鼠停在元素上，按 `Cmd+C` 或 `Ctrl+C` 複製單一元素。
+3. 按住 `Shift` 並點擊多個元素，建立群組選取。
+4. 放開 `Shift`，在原始 textarea 中輸入提示並送出。
 
-### Manual Setup
+### 手動整合
 
 #### Next.js (App Router)
 
@@ -102,7 +103,7 @@ import { Head, Html, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="zh-Hant">
       <Head>
         {process.env.NODE_ENV === "development" && (
           <Script
@@ -137,28 +138,22 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-### Package Surface
+### 套件介面
 
-- Runtime: `ui-grab`
-- Core API: `ui-grab/core`
-- Primitives: `ui-grab/primitives`
-- Styles: `ui-grab/styles.css`
-- CLI: `ui-grab`
-- MCP bridge: `ui-grab-mcp`
+- Runtime：`ui-grab`
+- Core API：`ui-grab/core`
+- Primitives：`ui-grab/primitives`
+- Styles：`ui-grab/styles.css`
+- CLI：`ui-grab`
+- 代理整合目前維持與上游相容，MCP 可透過 `ui-grab add mcp` 連接
 
-### Repository Scope
+### 支援
 
-- Published to npm: `ui-grab`, `ui-grab-mcp`
-- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
-- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
+- 儲存庫：[Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+- 問題回報：[GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
+- 上游參考：[aidenybai/react-grab](https://github.com/aidenybai/react-grab)
+- 本儲存庫是獨立分叉，並非由原 React Grab 團隊維護。
 
-### Support
+### 授權
 
-- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
-- Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
-- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- This repository is an independent fork and is not maintained by the original React Grab team.
-
-### License
-
-UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.
+UI Grab 以 MIT 授權發佈。重新散佈分叉程式碼時，請保留原始版權聲明與授權文字。

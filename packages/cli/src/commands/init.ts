@@ -34,8 +34,7 @@ import {
 import { formatActivationKeyDisplay } from "../utils/format-activation-key.js";
 
 const VERSION = process.env.VERSION ?? "0.0.1";
-const REPORT_URL = "https://react-grab.com/api/report-cli";
-const DOCS_URL = "https://github.com/aidenybai/react-grab";
+const DOCS_URL = "https://github.com/Yongtaek-Ryu/ui-grab";
 
 interface ReportConfig {
   framework: string;
@@ -50,17 +49,10 @@ const reportToCli = (
   config?: ReportConfig,
   error?: Error,
 ): void => {
-  fetch(REPORT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      type,
-      version: VERSION,
-      config,
-      error: error ? { message: error.message, stack: error.stack } : undefined,
-      timestamp: new Date().toISOString(),
-    }),
-  }).catch(() => {});
+  void type;
+  void config;
+  void error;
+  void VERSION;
 };
 
 const FRAMEWORK_NAMES: Record<Framework, string> = {
@@ -122,14 +114,14 @@ const printSubprojects = (
   );
   logger.break();
   logger.log(
-    `  ${highlighter.dim("$")} npx grab@latest init -c ${relative(searchRoot, sortedProjects[0].path)}`,
+    `  ${highlighter.dim("$")} npx ui-grab@latest init -c ${relative(searchRoot, sortedProjects[0].path)}`,
   );
   logger.break();
 };
 
 export const init = new Command()
   .name("init")
-  .description("initialize React Grab in your project")
+  .description("initialize UI Grab in your project")
   .option("-y, --yes", "skip confirmation prompts", false)
   .option("-f, --force", "force overwrite existing config", false)
   .option(
@@ -137,16 +129,14 @@ export const init = new Command()
     "activation key (e.g., Meta+K, Ctrl+Shift+G, Space)",
   )
   .option("--skip-install", "skip package installation", false)
-  .option("--pkg <pkg>", "custom package URL for CLI (e.g., grab)")
+  .option("--pkg <pkg>", "custom package URL for CLI (e.g., ui-grab)")
   .option(
     "-c, --cwd <cwd>",
     "working directory (defaults to current directory)",
     process.cwd(),
   )
   .action(async (opts) => {
-    console.log(
-      `${pc.magenta("✿")} ${pc.bold("React Grab")} ${pc.gray(VERSION)}`,
-    );
+    console.log(`${pc.magenta("✿")} ${pc.bold("UI Grab")} ${pc.gray(VERSION)}`);
     console.log();
 
     try {
@@ -169,7 +159,7 @@ export const init = new Command()
 
         if (isNonInteractive) {
           logger.break();
-          logger.warn("React Grab is already installed.");
+          logger.warn("UI Grab is already installed.");
           logger.log(
             `Use ${highlighter.info("--force")} to reconfigure, or remove ${highlighter.info("--yes")} for interactive mode.`,
           );
@@ -178,7 +168,7 @@ export const init = new Command()
         }
 
         logger.break();
-        logger.success("React Grab is already installed.");
+        logger.success("UI Grab is already installed.");
         logger.break();
 
         const { wantCustomizeOptions } = await prompts({
@@ -195,7 +185,7 @@ export const init = new Command()
 
         if (wantCustomizeOptions || opts.key) {
           logger.break();
-          logger.log(`Configure ${highlighter.info("React Grab")} options:`);
+          logger.log(`Configure ${highlighter.info("UI Grab")} options:`);
           logger.break();
 
           const collectedOptions: ReactGrabOptions = {};
@@ -353,7 +343,7 @@ export const init = new Command()
               applyTransformWithFeedback(optionsResult);
 
               logger.break();
-              logger.success("React Grab options have been configured.");
+              logger.success("UI Grab options have been configured.");
             }
           } else {
             logger.break();
@@ -428,7 +418,7 @@ export const init = new Command()
           const { selectedProject } = await prompts({
             type: "select",
             name: "selectedProject",
-            message: "Select a project to install React Grab:",
+            message: "Select a project to install UI Grab:",
             choices: [
               ...sortedProjects.map((project) => {
                 const frameworkLabel =
@@ -461,7 +451,7 @@ export const init = new Command()
           frameworkSpinner.fail("Could not detect a supported framework.");
           logger.break();
           logger.log(
-            "React Grab supports Next.js, Vite, TanStack Start, and Webpack projects.",
+            "UI Grab supports Next.js, Vite, TanStack Start, and Webpack projects.",
           );
           logger.log(`Visit ${highlighter.info(DOCS_URL)} for manual setup.`);
           logger.break();
@@ -514,7 +504,7 @@ export const init = new Command()
           }
           logger.break();
           logger.success("MCP server has been configured.");
-          logger.log("Continuing with React Grab installation...");
+          logger.log("Continuing with UI Grab installation...");
           logger.break();
           agentIntegration = "mcp";
         }
@@ -616,7 +606,7 @@ export const init = new Command()
 
       logger.break();
       logger.log(
-        `${highlighter.success("Success!")} React Grab has been installed.`,
+        `${highlighter.success("Success!")} UI Grab has been installed.`,
       );
       if (packageJsonResult.warning) {
         logger.break();

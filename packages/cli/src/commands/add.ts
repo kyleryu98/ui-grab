@@ -13,7 +13,7 @@ const VERSION = process.env.VERSION ?? "0.0.1";
 export const add = new Command()
   .name("add")
   .alias("install")
-  .description("connect React Grab to your agent via MCP")
+  .description("connect UI Grab to your agent via MCP")
   .argument("[agent]", "agent to connect (mcp)")
   .option("-y, --yes", "skip confirmation prompts", false)
   .option(
@@ -22,9 +22,7 @@ export const add = new Command()
     process.cwd(),
   )
   .action(async (agentArg, opts) => {
-    console.log(
-      `${pc.magenta("✿")} ${pc.bold("React Grab")} ${pc.gray(VERSION)}`,
-    );
+    console.log(`${pc.magenta("✿")} ${pc.bold("UI Grab")} ${pc.gray(VERSION)}`);
     console.log();
 
     try {
@@ -36,10 +34,10 @@ export const add = new Command()
       const projectInfo = await detectProject(cwd);
 
       if (!projectInfo.hasReactGrab) {
-        preflightSpinner.fail("React Grab is not installed.");
+        preflightSpinner.fail("UI Grab is not installed.");
         logger.break();
         logger.error(
-          `Run ${highlighter.info("react-grab init")} first to install React Grab.`,
+          `Run ${highlighter.info("ui-grab init")} first to install UI Grab.`,
         );
         logger.break();
         process.exit(1);
@@ -53,7 +51,7 @@ export const add = new Command()
           `Legacy agent packages are deprecated. Use ${highlighter.info("mcp")} instead.`,
         );
         logger.log(
-          `Run ${highlighter.info("grab add mcp")} to install the MCP server.`,
+          `Run ${highlighter.info("ui-grab add mcp")} to install the MCP server.`,
         );
         logger.break();
         process.exit(1);

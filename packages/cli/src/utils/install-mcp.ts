@@ -9,8 +9,8 @@ import { logger } from "./logger.js";
 import { prompts } from "./prompts.js";
 import { spinner } from "./spinner.js";
 
-const SERVER_NAME = "react-grab-mcp";
-const PACKAGE_NAME = "@react-grab/mcp";
+const SERVER_NAME = "ui-grab-mcp";
+const PACKAGE_NAME = "ui-grab-mcp";
 
 export interface ClientDefinition {
   name: string;

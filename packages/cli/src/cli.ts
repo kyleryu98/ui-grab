@@ -5,18 +5,13 @@ import { init } from "./commands/init.js";
 import { remove } from "./commands/remove.js";
 
 const VERSION = process.env.VERSION ?? "0.0.1";
-const VERSION_API_URL = "https://www.react-grab.com/api/version";
 
 process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
 
-try {
-  fetch(`${VERSION_API_URL}?source=cli&t=${Date.now()}`).catch(() => {});
-} catch {}
-
 const program = new Command()
-  .name("grab")
-  .description("add React Grab to your project")
+  .name("ui-grab")
+  .description("add UI Grab to your project")
   .version(VERSION, "-v, --version", "display the version number");
 
 program.addCommand(init);

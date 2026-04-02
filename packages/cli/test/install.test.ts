@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { getPackagesToInstall } from "../src/utils/install.js";
 
 describe("getPackagesToInstall", () => {
-  it("should return react-grab when includeReactGrab is true", () => {
+  it("should return ui-grab when includeReactGrab is true", () => {
     const packages = getPackagesToInstall(true);
 
-    expect(packages).toEqual(["react-grab"]);
+    expect(packages).toEqual(["ui-grab"]);
   });
 
   it("should return empty array when includeReactGrab is false", () => {

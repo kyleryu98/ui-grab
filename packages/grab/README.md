@@ -1,64 +1,88 @@
-# UI Grab
+<p align="center">
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab">
+    <img src="https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/logo.png" alt="UI Grab logo" width="96">
+  </a>
+</p>
+<p align="center">The open-source UI context picker for coding agents.</p>
+<p align="center">
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Yongtaek-Ryu/ui-grab/ci.yml?style=flat-square&branch=main" /></a>
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
+</p>
 
-UI Grab is a maintained fork of React Grab with built-in Shift multi-select for prompt mode.
+<p align="center">
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.md">English</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.zh.md">简体中文</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.zht.md">繁體中文</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.ko.md">한국어</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.de.md">Deutsch</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.es.md">Español</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.fr.md">Français</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.it.md">Italiano</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.da.md">Dansk</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.ja.md">日本語</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.pl.md">Polski</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.ru.md">Русский</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.bs.md">Bosanski</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.ar.md">العربية</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.no.md">Norsk</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.br.md">Português (Brasil)</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.th.md">ไทย</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.tr.md">Türkçe</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.uk.md">Українська</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.bn.md">বাংলা</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.gr.md">Ελληνικά</a> |
+  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/README.vi.md">Tiếng Việt</a>
+</p>
 
-This fork keeps the original prompt UI and comment history flow, but changes one important interaction:
+![UI Grab banner](https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/banner.png)
 
-- Activate selection from the toolbar
-- Hold `Shift`
-- Click multiple elements
-- Release `Shift`
-- The original prompt opens on the last selected element with the full grouped selection preserved
+---
 
-The project remains MIT-compatible and keeps upstream package compatibility for now. Until you publish it under your own scope, imports and runtime usage stay `react-grab`-compatible.
-
-## English
-
-### What is different from upstream
-
-- Built-in `Shift + click` multi-selection in comment mode
-- The prompt does not open on the first click
-- The original React Grab textarea is preserved
-- Multi-selected elements stay visibly highlighted before prompt entry
-- Submitted prompt text is stored correctly in comment history for grouped selections
-
-### Install
-
-If you are consuming this fork directly from GitHub, install it from your own repository URL.
+### Installation
 
 ```bash
-pnpm add github:your-account/ui-grab
+# Main package
+npx ui-grab@latest init
+pnpm add -D ui-grab
+
+# Optional MCP bridge
+pnpm add -D ui-grab-mcp
 ```
 
-If you later publish it under a scoped package, replace the dependency name accordingly.
+> [!NOTE]
+> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+
+### Why UI Grab
+
+- Copy file, component, and HTML context directly from the browser
+- Keep the original React Grab prompt UI and comment history flow
+- Use built-in `Shift + click` multi-select in comment mode
+- Preserve grouped prompt history after submitting multi-element selections
+- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
+- Keep MCP support optional through a separate `ui-grab-mcp` package
 
 ### Usage
 
-1. Open your app in development.
-2. Activate the selection tool from the floating toolbar.
-3. Hold `Shift` and click multiple elements.
-4. Release `Shift`.
-5. Enter your prompt in the original React Grab textarea.
-6. Submit to copy grouped context and save the prompt in comment history.
+1. Activate the selection tool from the floating toolbar.
+2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
+3. Hold `Shift` and click multiple elements to build a grouped selection.
+4. Release `Shift`, type into the original textarea, and submit.
 
-### Manual integration
+### Manual Setup
 
-This fork currently stays import-compatible with `react-grab`.
-
-#### Next.js
+#### Next.js (App Router)
 
 ```tsx
 import Script from "next/script";
 
-export default function RootLayout(props: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html>
       <head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/grab/dist/index.global.js"
+            src="//unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
@@ -70,77 +94,29 @@ export default function RootLayout(props: {
 }
 ```
 
-#### Vite
-
-```tsx
-if (import.meta.env.DEV) {
-  import("grab");
-}
-```
-
-### Attribution and license
-
-UI Grab is based on React Grab by Aiden Bai.
-
-- Upstream project: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- License: MIT
-
-Keep the upstream copyright notice and MIT license text when redistributing this fork.
-
-## 한국어
-
-### 무엇이 달라졌나
-
-- comment mode에서 `Shift + 클릭` 다중 선택이 기본 지원됩니다.
-- 첫 번째 클릭에서 바로 프롬프트가 뜨지 않습니다.
-- React Grab 기본 textarea UI를 그대로 사용합니다.
-- 프롬프트를 열기 전까지 선택한 요소들이 계속 하이라이트된 상태로 유지됩니다.
-- 여러 요소를 묶어 프롬프트를 제출해도 comment history에 메시지가 정상 반영됩니다.
-
-### 설치
-
-별도 저장소로 운영한다면 GitHub 저장소에서 직접 설치하면 됩니다.
-
-```bash
-pnpm add github:your-account/ui-grab
-```
-
-나중에 scoped package로 배포하면 그 이름으로 바꾸면 됩니다.
-
-### 사용 방법
-
-1. 개발 환경에서 앱을 실행합니다.
-2. 플로팅 툴바에서 선택 기능을 활성화합니다.
-3. `Shift`를 누른 채 여러 요소를 클릭합니다.
-4. `Shift`를 떼면 마지막으로 선택한 요소 기준으로 기본 프롬프트가 열립니다.
-5. 기존 React Grab 입력창에 메시지를 입력합니다.
-6. 제출하면 여러 요소 컨텍스트와 프롬프트가 함께 복사되고 comment history에도 저장됩니다.
-
-### 수동 연동
-
-현재 이 포크는 `react-grab` import 호환을 유지합니다.
-
-#### Next.js
+#### Next.js (Pages Router)
 
 ```tsx
 import Script from "next/script";
+import { Head, Html, Main, NextScript } from "next/document";
 
-export default function RootLayout(props: {
-  children: React.ReactNode;
-}) {
+export default function Document() {
   return (
-    <html>
-      <head>
+    <Html lang="en">
+      <Head>
         {process.env.NODE_ENV === "development" && (
           <Script
-            src="//unpkg.com/grab/dist/index.global.js"
+            src="//unpkg.com/ui-grab/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />
         )}
-      </head>
-      <body>{props.children}</body>
-    </html>
+      </Head>
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
   );
 }
 ```
@@ -149,15 +125,40 @@ export default function RootLayout(props: {
 
 ```tsx
 if (import.meta.env.DEV) {
-  import("grab");
+  import("ui-grab");
 }
 ```
 
-### 출처와 라이선스
+#### Webpack
 
-UI Grab은 Aiden Bai의 React Grab을 기반으로 만든 포크입니다.
+```tsx
+if (process.env.NODE_ENV === "development") {
+  import("ui-grab");
+}
+```
 
-- 원본 저장소: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- 라이선스: MIT
+### Package Surface
 
-이 포크를 재배포할 때는 upstream 저작권 고지와 MIT 라이선스 문구를 유지해야 합니다.
+- Runtime: `ui-grab`
+- Core API: `ui-grab/core`
+- Primitives: `ui-grab/primitives`
+- Styles: `ui-grab/styles.css`
+- CLI: `ui-grab`
+- MCP bridge: `ui-grab-mcp`
+
+### Repository Scope
+
+- Published to npm: `ui-grab`, `ui-grab-mcp`
+- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
+- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
+
+### Support
+
+- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+- Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
+- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
+- This repository is an independent fork and is not maintained by the original React Grab team.
+
+### License
+
+UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.

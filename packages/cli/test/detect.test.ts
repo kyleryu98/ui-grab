@@ -175,25 +175,25 @@ describe("detectMonorepo", () => {
 });
 
 describe("detectReactGrab", () => {
-  it("should detect react-grab in dependencies", () => {
+  it("should detect ui-grab in dependencies", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(
-      JSON.stringify({ dependencies: { "react-grab": "1.0.0" } }),
+      JSON.stringify({ dependencies: { "ui-grab": "1.0.0" } }),
     );
 
     expect(detectReactGrab("/test")).toBe(true);
   });
 
-  it("should detect react-grab in devDependencies", () => {
+  it("should detect ui-grab in devDependencies", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(
-      JSON.stringify({ devDependencies: { "react-grab": "1.0.0" } }),
+      JSON.stringify({ devDependencies: { "ui-grab": "1.0.0" } }),
     );
 
     expect(detectReactGrab("/test")).toBe(true);
   });
 
-  it("should return false when react-grab is not installed", () => {
+  it("should return false when ui-grab is not installed", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(
       JSON.stringify({ dependencies: { react: "18.0.0" } }),
@@ -222,7 +222,7 @@ describe("detectInstalledAgents", () => {
     mockReadFileSync.mockReturnValue(
       JSON.stringify({
         devDependencies: {
-          "@react-grab/mcp": "0.1.0",
+          "ui-grab-mcp": "0.1.0",
           "@react-grab/cursor": "1.0.0",
         },
       }),
@@ -236,7 +236,7 @@ describe("detectInstalledAgents", () => {
   it("should return empty array when no agents installed", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(
-      JSON.stringify({ dependencies: { "react-grab": "1.0.0" } }),
+      JSON.stringify({ dependencies: { "ui-grab": "1.0.0" } }),
     );
 
     expect(detectInstalledAgents("/test")).toEqual([]);
@@ -255,12 +255,12 @@ describe("detectInstalledAgents", () => {
     expect(detectInstalledAgents("/test")).toEqual([]);
   });
 
-  it("should detect mcp when @react-grab/mcp is installed", () => {
+  it("should detect mcp when ui-grab-mcp is installed", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(
       JSON.stringify({
         devDependencies: {
-          "@react-grab/mcp": "0.1.0",
+          "ui-grab-mcp": "0.1.0",
         },
       }),
     );

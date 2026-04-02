@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/Yongtaek-Ryu/ui-grab/main/assets/logo.png" alt="UI Grab logo" width="96">
   </a>
 </p>
-<p align="center">The open-source UI context picker for coding agents.</p>
+<p align="center">কোডিং এজেন্টের জন্য ওপেন-সোর্স UI কনটেক্সট পিকার।</p>
 <p align="center">
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Yongtaek-Ryu/ui-grab/ci.yml?style=flat-square&branch=main" /></a>
   <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Yongtaek-Ryu/ui-grab?style=flat-square" /></a>
@@ -39,37 +39,36 @@
 
 ---
 
-### Installation
+### ইনস্টলেশন
 
 ```bash
-# Main package
 npx ui-grab@latest init
 pnpm add -D ui-grab
 
-# Optional MCP bridge
-pnpm add -D ui-grab-mcp
+pnpm install
+pnpm build
+pnpm --filter ui-grab pack
 ```
 
 > [!NOTE]
-> `ui-grab` is the runtime and CLI package for this fork. `ui-grab-mcp` is a separate optional package for agent integrations.
+> `ui-grab` এই fork-এর পাবলিক প্যাকেজ নাম। রেপোজিটরি publish-ready, তবে প্রথম public npm release-এর জন্য এখনও maintainer অ্যাকাউন্টে npm authentication দরকার।
 
-### Why UI Grab
+### কেন UI Grab
 
-- Copy file, component, and HTML context directly from the browser
-- Keep the original React Grab prompt UI and comment history flow
-- Use built-in `Shift + click` multi-select in comment mode
-- Preserve grouped prompt history after submitting multi-element selections
-- Keep a public package surface compatible with `ui-grab`, `ui-grab/core`, `ui-grab/primitives`, and `ui-grab/styles.css`
-- Keep MCP support optional through a separate `ui-grab-mcp` package
+- ব্রাউজার থেকেই ফাইল, কম্পোনেন্ট ও HTML কনটেক্সট কপি করুন
+- মূল React Grab prompt UI এবং comment history বজায় রাখুন
+- comment mode-এ বিল্ট-ইন `Shift + click` multi-select ব্যবহার করুন
+- একাধিক element পাঠানোর পর grouped prompt history ধরে রাখুন
+- `ui-grab`, `ui-grab/core`, `ui-grab/primitives` এবং `ui-grab/styles.css` public entrypoints বজায় রাখুন
 
-### Usage
+### ব্যবহার
 
-1. Activate the selection tool from the floating toolbar.
-2. Hover an element and press `Cmd+C` or `Ctrl+C` to copy a single element.
-3. Hold `Shift` and click multiple elements to build a grouped selection.
-4. Release `Shift`, type into the original textarea, and submit.
+1. floating toolbar থেকে selection tool সক্রিয় করুন।
+2. একটি element-এর উপর hover করে `Cmd+C` বা `Ctrl+C` চাপুন single element কপি করতে।
+3. `Shift` চেপে একাধিক element-এ ক্লিক করে grouped selection তৈরি করুন।
+4. `Shift` ছেড়ে মূল textarea-তে লিখে submit করুন।
 
-### Manual Setup
+### ম্যানুয়াল সেটআপ
 
 #### Next.js (App Router)
 
@@ -94,33 +93,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 }
 ```
 
-#### Next.js (Pages Router)
-
-```tsx
-import Script from "next/script";
-import { Head, Html, Main, NextScript } from "next/document";
-
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head>
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/ui-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
-      </Head>
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
-}
-```
-
 #### Vite
 
 ```tsx
@@ -129,36 +101,20 @@ if (import.meta.env.DEV) {
 }
 ```
 
-#### Webpack
-
-```tsx
-if (process.env.NODE_ENV === "development") {
-  import("ui-grab");
-}
-```
-
-### Package Surface
+### প্যাকেজ সারফেস
 
 - Runtime: `ui-grab`
 - Core API: `ui-grab/core`
 - Primitives: `ui-grab/primitives`
 - Styles: `ui-grab/styles.css`
 - CLI: `ui-grab`
-- MCP bridge: `ui-grab-mcp`
 
-### Repository Scope
+### সহায়তা
 
-- Published to npm: `ui-grab`, `ui-grab-mcp`
-- Kept only in the GitHub repository: multilingual READMEs, `assets/`, `CONTRIBUTING.md`, and `.github/workflows/ci.yml`
-- Removed from this fork: OpenSpec history, website files, extra playground packages, and GitHub prompt/skill scaffolding
-
-### Support
-
-- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+- রিপোজিটরি: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
 - Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
-- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
-- This repository is an independent fork and is not maintained by the original React Grab team.
+- Upstream রেফারেন্স: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
 
-### License
+### লাইসেন্স
 
-UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.
+UI Grab MIT লাইসেন্সে বিতরণ করা হয়। fork করা কোড পুনর্বিতরণের সময় মূল copyright notice এবং license text বজায় রাখুন।
