@@ -45,7 +45,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.0",
     "fkill": "^9.0.0",
-    "ui-grab": "0.1.32",
+    "ui-grab": "workspace:*",
     "zod": "^3.25.0"
   },
   "devDependencies": {
