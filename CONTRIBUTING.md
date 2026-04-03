@@ -107,7 +107,7 @@ npm publish ./packages/mcp --dry-run --access public
 2. In npm package settings, open `Trusted publishing`.
 3. Choose `GitHub Actions`.
 4. Configure:
-   - GitHub user or org: `Yongtaek-Ryu`
+   - GitHub user or org: `kyleryu98`
    - Repository: `ui-grab`
    - Workflow filename: `publish.yml`
 5. Repeat the same setup for `ui-grab-mcp`.
@@ -167,7 +167,7 @@ We use conventional commits:
 
 ## Reporting Issues
 
-Found a bug? Have a feature request? [Open an issue](https://github.com/Yongtaek-Ryu/ui-grab/issues) with:
+Found a bug? Have a feature request? [Open an issue](https://github.com/kyleryu98/ui-grab/issues) with:
 
 - Clear description of the problem or request
 - Steps to reproduce (for bugs)
@@ -177,7 +177,7 @@ Found a bug? Have a feature request? [Open an issue](https://github.com/Yongtaek
 ## Community
 
 - Join our [Discord](https://discord.com/invite/G7zxfUzkm7) to discuss ideas and get help
-- Check existing [issues](https://github.com/Yongtaek-Ryu/ui-grab/issues) before opening new ones
+- Check existing [issues](https://github.com/kyleryu98/ui-grab/issues) before opening new ones
 
 ## License
 

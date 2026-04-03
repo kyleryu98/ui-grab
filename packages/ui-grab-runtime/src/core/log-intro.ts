@@ -1,7 +1,7 @@
 import { LOGO_SVG } from "./logo-svg.js";
 import { getRuntimeEnv } from "../utils/runtime-env.js";
 
-const REPOSITORY_URL = "https://github.com/Yongtaek-Ryu/ui-grab";
+const REPOSITORY_URL = "https://github.com/kyleryu98/ui-grab";
 
 export const logIntro = () => {
   try {

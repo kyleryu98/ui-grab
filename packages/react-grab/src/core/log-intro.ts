@@ -1,6 +1,6 @@
 import { LOGO_SVG } from "./logo-svg.js";
 
-const REPOSITORY_URL = "https://github.com/Yongtaek-Ryu/ui-grab";
+const REPOSITORY_URL = "https://github.com/kyleryu98/ui-grab";
 
 export const logIntro = () => {
   try {

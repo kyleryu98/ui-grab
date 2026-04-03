@@ -5,7 +5,7 @@ UI context picker for coding agents with built-in `Shift + click` multi-select.
 <p align="center">
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm version" src="https://img.shields.io/npm/v/ui-grab?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/ui-grab"><img alt="npm package" src="https://img.shields.io/badge/npm-ui--grab-cb3837?style=flat-square" /></a>
-  <a href="https://github.com/Yongtaek-Ryu/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-97ca00?style=flat-square" /></a>
+  <a href="https://github.com/kyleryu98/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-97ca00?style=flat-square" /></a>
 </p>
 
 `ui-grab` is an independent fork of the MIT-licensed `react-grab` project. It keeps the upstream prompt UI and comment history flow, adds built-in `Shift + click` multi-select, and ships a separate MCP bridge so browser context picking can stay lightweight by default.
@@ -147,10 +147,10 @@ if (process.env.NODE_ENV === "development") {
 
 ## Support
 
-- Repository: [Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
-- Issues: [GitHub Issues](https://github.com/Yongtaek-Ryu/ui-grab/issues)
-- Upstream reference: [aidenybai/react-grab](https://github.com/aidenybai/react-grab)
+- Maintainer: [kyleryu98](https://github.com/kyleryu98)
+- Repository: [kyleryu98/ui-grab](https://github.com/kyleryu98/ui-grab)
+- Issues: [GitHub Issues](https://github.com/kyleryu98/ui-grab/issues)
 
 ## License
 
-UI Grab is distributed under the MIT license. Keep the original copyright notice and license text when redistributing forked code.
+UI Grab is distributed under the MIT license. Keep the license text and any existing copyright notices when redistributing copies or derivatives.

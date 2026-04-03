@@ -45,7 +45,7 @@ export const remove = new Command()
       if (agentArg && agentArg !== "mcp") {
         logger.break();
         logger.warn(
-          `Legacy agent packages are not supported in this fork. Remove ${highlighter.info(agentArg)} manually if you still have custom wiring for it.`,
+          `Legacy agent packages are not supported by UI Grab. Remove ${highlighter.info(agentArg)} manually if you still have custom wiring for it.`,
         );
         logger.break();
         process.exit(0);

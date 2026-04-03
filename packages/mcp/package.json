@@ -13,13 +13,13 @@
   ],
   "description": "Optional MCP bridge for ui-grab",
   "license": "MIT",
-  "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
+  "homepage": "https://github.com/kyleryu98/ui-grab",
   "bugs": {
-    "url": "https://github.com/Yongtaek-Ryu/ui-grab/issues"
+    "url": "https://github.com/kyleryu98/ui-grab/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yongtaek-Ryu/ui-grab.git"
+    "url": "git+https://github.com/kyleryu98/ui-grab.git"
   },
   "type": "module",
   "browser": "dist/client.global.js",

@@ -34,7 +34,7 @@ import {
 import { formatActivationKeyDisplay } from "../utils/format-activation-key.js";
 
 const VERSION = process.env.VERSION ?? "0.0.1";
-const DOCS_URL = "https://github.com/Yongtaek-Ryu/ui-grab";
+const DOCS_URL = "https://github.com/kyleryu98/ui-grab";
 
 interface ReportConfig {
   framework: string;

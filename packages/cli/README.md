@@ -81,4 +81,4 @@ npx ui-grab@latest init --skip-install -y
 
 If the CLI doesn't work for your setup, visit the docs:
 
-[Yongtaek-Ryu/ui-grab](https://github.com/Yongtaek-Ryu/ui-grab)
+[kyleryu98/ui-grab](https://github.com/kyleryu98/ui-grab)

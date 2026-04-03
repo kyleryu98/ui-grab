@@ -2,20 +2,19 @@
   "name": "@ui-grab/runtime",
   "version": "0.1.34",
   "private": true,
-  "description": "Internal runtime source for the UI Grab fork",
+  "description": "Internal runtime source for UI Grab",
   "keywords": ["agent", "context", "grab", "react", "ui-grab", "runtime"],
-  "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
+  "homepage": "https://github.com/kyleryu98/ui-grab",
   "bugs": {
-    "url": "https://github.com/Yongtaek-Ryu/ui-grab/issues"
+    "url": "https://github.com/kyleryu98/ui-grab/issues"
   },
   "license": "MIT",
   "author": {
-    "name": "Aiden Bai",
-    "email": "aiden@million.dev"
+    "name": "Yongtaek Ryu"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yongtaek-Ryu/ui-grab.git"
+    "url": "git+https://github.com/kyleryu98/ui-grab.git"
   },
   "bin": {
     "ui-grab-dev": "./bin/cli.js"
