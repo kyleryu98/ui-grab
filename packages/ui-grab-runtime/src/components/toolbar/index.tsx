@@ -792,13 +792,50 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   );
 
   let expandedDimensions = {
-    width: TOOLBAR_DEFAULT_WIDTH_PX,
-    height: TOOLBAR_DEFAULT_HEIGHT_PX,
+    width: scaledToolbarDimensions().width,
+    height: scaledToolbarDimensions().height,
   };
   const [collapsedDimensions, setCollapsedDimensions] = createSignal({
     width: TOOLBAR_COLLAPSED_SHORT_PX,
     height: TOOLBAR_COLLAPSED_SHORT_PX,
   });
+
+  const syncToolbarPositionToMeasuredRect = (
+    rect: Pick<DOMRect, "width" | "height">,
+    options: { syncExpandedDimensions?: boolean } = {},
+  ): boolean => {
+    if (rect.width <= 0 || rect.height <= 0) return false;
+
+    const edge = snapEdge();
+    const isCollapsedNow = isCollapsed();
+    if (isCollapsedNow) {
+      setCollapsedDimensions({ width: rect.width, height: rect.height });
+    } else if (options.syncExpandedDimensions ?? true) {
+      expandedDimensions = { width: rect.width, height: rect.height };
+    }
+
+    const measuredWidth = isCollapsedNow ? expandedDimensions.width : rect.width;
+    const measuredHeight = isCollapsedNow
+      ? expandedDimensions.height
+      : rect.height;
+    const nextPosition = getPositionFromEdgeAndRatio(
+      edge,
+      positionRatio(),
+      measuredWidth,
+      measuredHeight,
+    );
+    const nextRatio = getRatioFromPosition(
+      edge,
+      nextPosition.x,
+      nextPosition.y,
+      measuredWidth,
+      measuredHeight,
+    );
+
+    setPosition(nextPosition);
+    setPositionRatio(nextRatio);
+    return true;
+  };
 
   const buildPersistedToolbarState = (
     overrides: Partial<ToolbarState> = {},
@@ -860,24 +897,21 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   };
 
   const scheduleInitialLayoutSync = () => {
-    if (hasSyncedInitialLayout || isCollapsed() || !containerRef) return;
+    if (hasSyncedInitialLayout || !containerRef) return;
     if (initialLayoutSyncRafId !== undefined) return;
 
     initialLayoutSyncRafId = nativeRequestAnimationFrame(() => {
       initialLayoutSyncRafId = undefined;
       nativeRequestAnimationFrame(() => {
-        if (hasSyncedInitialLayout || isCollapsed() || !containerRef) return;
+        if (hasSyncedInitialLayout || !containerRef) return;
         const rect = containerRef.getBoundingClientRect();
-        if (rect.width <= 0 || rect.height <= 0) return;
-        expandedDimensions = { width: rect.width, height: rect.height };
-        setPosition(
-          getPositionFromEdgeAndRatio(
-            snapEdge(),
-            positionRatio(),
-            rect.width,
-            rect.height,
-          ),
-        );
+        if (
+          !syncToolbarPositionToMeasuredRect(rect, {
+            syncExpandedDimensions: !isCollapsed(),
+          })
+        ) {
+          return;
+        }
         hasSyncedInitialLayout = true;
       });
     });
@@ -1257,7 +1291,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     const viewport = getVisualViewport();
 
     if (savedState) {
-      if (rect) {
+      if (rect && rect.width > 0 && rect.height > 0) {
         // HACK: On initial mount, the element is always rendered expanded (isCollapsed defaults to false).
         // So rect always measures expanded dimensions, regardless of savedState.collapsed.
         expandedDimensions = { width: rect.width, height: rect.height };
@@ -1402,6 +1436,12 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     window.visualViewport?.addEventListener("scroll", handleResize);
 
     const fadeInTimeout = setTimeout(() => {
+      const rect = containerRef?.getBoundingClientRect();
+      if (rect) {
+        syncToolbarPositionToMeasuredRect(rect, {
+          syncExpandedDimensions: !isCollapsed(),
+        });
+      }
       setIsVisible(true);
     }, TOOLBAR_FADE_IN_DELAY_MS);
 

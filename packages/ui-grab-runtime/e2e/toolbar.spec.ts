@@ -276,6 +276,46 @@ test.describe("Toolbar", () => {
 
       await uiGrab.setViewportSize(1280, 720);
     });
+
+    test("collapsed scaled toolbar should start fully inside the viewport", async ({
+      uiGrab,
+    }) => {
+      await uiGrab.setViewportSize(470, 272);
+      await uiGrab.page.evaluate(() => {
+        localStorage.setItem(
+          "ui-grab-toolbar-state",
+          JSON.stringify({
+            edge: "bottom",
+            ratio: 0.5,
+            collapsed: true,
+            enabled: true,
+            scale: 1.8,
+          }),
+        );
+      });
+      await uiGrab.page.reload();
+      await uiGrab.page.waitForLoadState("domcontentloaded");
+      await expect
+        .poll(() => uiGrab.isToolbarVisible(), { timeout: 3000 })
+        .toBe(true);
+      await uiGrab.page.waitForTimeout(600);
+
+      const toolbarRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-shell]",
+      );
+      const viewport = await uiGrab.getViewportSize();
+
+      expect(toolbarRect).not.toBeNull();
+      expect(toolbarRect?.left ?? -1).toBeGreaterThanOrEqual(0);
+      expect(toolbarRect?.top ?? -1).toBeGreaterThanOrEqual(0);
+      expect(toolbarRect?.right ?? viewport.width + 1).toBeLessThanOrEqual(
+        viewport.width,
+      );
+      expect(toolbarRect?.bottom ?? viewport.height + 1).toBeLessThanOrEqual(
+        viewport.height,
+      );
+    });
   });
 
   test.describe("Toggle Activation", () => {

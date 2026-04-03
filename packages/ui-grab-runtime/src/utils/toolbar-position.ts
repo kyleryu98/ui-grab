@@ -182,39 +182,41 @@ export const getCollapsedPosition = (
   const { width: expandedWidth, height: expandedHeight } = expandedDimensions;
   const { width: collapsedWidth, height: collapsedHeight } =
     collapsedDimensions;
+  const minX = viewport.offsetLeft + TOOLBAR_SNAP_MARGIN_PX;
+  const maxX = Math.max(
+    minX,
+    viewport.offsetLeft +
+      viewport.width -
+      collapsedWidth -
+      TOOLBAR_SNAP_MARGIN_PX,
+  );
+  const minY = viewport.offsetTop + TOOLBAR_SNAP_MARGIN_PX;
+  const maxY = Math.max(
+    minY,
+    viewport.offsetTop +
+      viewport.height -
+      collapsedHeight -
+      TOOLBAR_SNAP_MARGIN_PX,
+  );
 
   switch (edge) {
     case "top":
     case "bottom": {
       const xOffset = (expandedWidth - collapsedWidth) / 2;
       const centeredX = expandedPosition.x + xOffset;
-      const clampedX = clampToRange(
-        centeredX,
-        viewport.offsetLeft,
-        viewport.offsetLeft + viewport.width - collapsedWidth,
-      );
+      const clampedX = clampToRange(centeredX, minX, maxX);
       return {
         x: clampedX,
-        y:
-          edge === "top"
-            ? viewport.offsetTop
-            : viewport.offsetTop + viewport.height - collapsedHeight,
+        y: edge === "top" ? minY : maxY,
       };
     }
     case "left":
     case "right": {
       const yOffset = (expandedHeight - collapsedHeight) / 2;
       const centeredY = expandedPosition.y + yOffset;
-      const clampedY = clampToRange(
-        centeredY,
-        viewport.offsetTop,
-        viewport.offsetTop + viewport.height - collapsedHeight,
-      );
+      const clampedY = clampToRange(centeredY, minY, maxY);
       return {
-        x:
-          edge === "left"
-            ? viewport.offsetLeft
-            : viewport.offsetLeft + viewport.width - collapsedWidth,
+        x: edge === "left" ? minX : maxX,
         y: clampedY,
       };
     }
