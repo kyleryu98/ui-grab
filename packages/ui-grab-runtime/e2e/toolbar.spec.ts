@@ -41,13 +41,14 @@ const getShadowElementStyles = async (
 
 const CENTER_ALIGNMENT_TOLERANCE_PX = 1.5;
 
-const hoverToolbarShell = async (uiGrab: UiGrabPageObject) => {
-  const toolbarRect = await getShadowElementRect(
-    uiGrab,
-    "[data-ui-grab-toolbar-shell]",
-  );
+const hoverShadowElement = async (
+  uiGrab: UiGrabPageObject,
+  selector: string,
+  missingMessage: string,
+) => {
+  const toolbarRect = await getShadowElementRect(uiGrab, selector);
   if (!toolbarRect) {
-    throw new Error("Toolbar shell not found");
+    throw new Error(missingMessage);
   }
 
   await uiGrab.page.mouse.move(
@@ -55,6 +56,20 @@ const hoverToolbarShell = async (uiGrab: UiGrabPageObject) => {
     toolbarRect.top + toolbarRect.height / 2,
   );
 };
+
+const hoverToolbarShell = async (uiGrab: UiGrabPageObject) =>
+  hoverShadowElement(
+    uiGrab,
+    "[data-ui-grab-toolbar-shell]",
+    "Toolbar shell not found",
+  );
+
+const hoverResizeHandle = async (uiGrab: UiGrabPageObject) =>
+  hoverShadowElement(
+    uiGrab,
+    "[data-ui-grab-toolbar-resize-handle]",
+    "Resize handle not found",
+  );
 
 const rectanglesOverlap = (
   first: {
@@ -694,7 +709,7 @@ test.describe("Toolbar", () => {
         });
     });
 
-    test("should resize diagonally from the corner handle and persist after reload", async ({
+    test("should resize from the revealed center handle and persist after reload", async ({
       uiGrab,
     }) => {
       const beforeResize = await uiGrab.getToolbarInfo();
@@ -764,7 +779,7 @@ test.describe("Toolbar", () => {
       ).toBeLessThan(3);
     });
 
-    test("should resize from the free corner when snapped to the right edge", async ({
+    test("should center the resize handle on the free side when snapped to the right edge", async ({
       uiGrab,
     }) => {
       await uiGrab.page.evaluate(() => {
@@ -785,6 +800,30 @@ test.describe("Toolbar", () => {
         .poll(() => uiGrab.isToolbarVisible(), { timeout: 3000 })
         .toBe(true);
       await uiGrab.page.waitForTimeout(600);
+
+      await hoverToolbarShell(uiGrab);
+
+      const toolbarRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-shell]",
+      );
+      const resizeHandleRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-resize-handle]",
+      );
+
+      expect(toolbarRect).not.toBeNull();
+      expect(resizeHandleRect).not.toBeNull();
+      expect(
+        Math.abs(
+          (resizeHandleRect?.top ?? 0) +
+            (resizeHandleRect?.height ?? 0) / 2 -
+            ((toolbarRect?.top ?? 0) + (toolbarRect?.height ?? 0) / 2),
+        ),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
+      expect((resizeHandleRect?.right ?? Number.POSITIVE_INFINITY)).toBeLessThan(
+        (toolbarRect?.left ?? 0) + 1,
+      );
 
       const beforeResize = await uiGrab.getToolbarInfo();
       const beforeWidth = beforeResize.dimensions?.width ?? 0;
@@ -858,9 +897,29 @@ test.describe("Toolbar", () => {
       );
     });
 
-    test("resize handle should not overlap the collapse button on the default bottom edge", async ({
+    test("resize handle should stay centered above the toolbar and keep its tooltip above the button", async ({
       uiGrab,
     }) => {
+      await hoverToolbarShell(uiGrab);
+      await hoverResizeHandle(uiGrab);
+
+      await expect
+        .poll(
+          async () =>
+            Boolean(
+              await getShadowElementRect(
+                uiGrab,
+                "[data-ui-grab-toolbar-resize-tooltip]",
+              ),
+            ),
+          { timeout: 2000 },
+        )
+        .toBe(true);
+
+      const toolbarRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-shell]",
+      );
       const collapseRect = await getShadowElementRect(
         uiGrab,
         "[data-ui-grab-toolbar-collapse]",
@@ -869,15 +928,60 @@ test.describe("Toolbar", () => {
         uiGrab,
         "[data-ui-grab-toolbar-resize-handle]",
       );
+      const tooltipRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-resize-tooltip]",
+      );
 
+      expect(toolbarRect).not.toBeNull();
       expect(collapseRect).not.toBeNull();
       expect(resizeHandleRect).not.toBeNull();
+      expect(tooltipRect).not.toBeNull();
+      expect(
+        Math.abs(
+          (resizeHandleRect?.left ?? 0) +
+            (resizeHandleRect?.width ?? 0) / 2 -
+            ((toolbarRect?.left ?? 0) + (toolbarRect?.width ?? 0) / 2),
+        ),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
+      expect((resizeHandleRect?.bottom ?? Number.POSITIVE_INFINITY)).toBeLessThan(
+        (toolbarRect?.top ?? 0) + 1,
+      );
+      expect((tooltipRect?.bottom ?? Number.POSITIVE_INFINITY)).toBeLessThan(
+        (resizeHandleRect?.top ?? 0) + 1,
+      );
       expect(
         rectanglesOverlap(
           collapseRect ?? { left: 0, top: 0, right: 0, bottom: 0 },
           resizeHandleRect ?? { left: 0, top: 0, right: 0, bottom: 0 },
         ),
       ).toBe(false);
+    });
+
+    test("resize handle should stay revealed while moving from the toolbar body to the handle", async ({
+      uiGrab,
+    }) => {
+      await hoverToolbarShell(uiGrab);
+      await hoverResizeHandle(uiGrab);
+
+      await expect
+        .poll(
+          async () => {
+            const styles = await getShadowElementStyles(
+              uiGrab,
+              "[data-ui-grab-toolbar-resize-handle]",
+            );
+            return {
+              opacity: Number(styles?.opacity ?? "0"),
+              pointerEvents: styles?.pointerEvents ?? "none",
+            };
+          },
+          { timeout: 2000 },
+        )
+        .toEqual({
+          opacity: 1,
+          pointerEvents: "auto",
+        });
     });
   });
 
