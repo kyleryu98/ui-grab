@@ -1,0 +1,118 @@
+{
+  "name": "@ui-grab/runtime",
+  "version": "0.1.34",
+  "private": true,
+  "description": "Internal runtime source for the UI Grab fork",
+  "keywords": ["agent", "context", "grab", "react", "ui-grab", "runtime"],
+  "homepage": "https://github.com/Yongtaek-Ryu/ui-grab",
+  "bugs": {
+    "url": "https://github.com/Yongtaek-Ryu/ui-grab/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Aiden Bai",
+    "email": "aiden@million.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yongtaek-Ryu/ui-grab.git"
+  },
+  "bin": {
+    "ui-grab-dev": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "browser": "dist/index.global.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./core": {
+      "import": {
+        "types": "./dist/core/index.d.ts",
+        "default": "./dist/core/index.js"
+      },
+      "require": {
+        "types": "./dist/core/index.d.cts",
+        "default": "./dist/core/index.cjs"
+      }
+    },
+    "./primitives": {
+      "import": {
+        "types": "./dist/primitives.d.ts",
+        "default": "./dist/primitives.js"
+      },
+      "require": {
+        "types": "./dist/primitives.d.cts",
+        "default": "./dist/primitives.cjs"
+      }
+    },
+    "./src/*": "./src/*",
+    "./styles.css": "./dist/styles.css",
+    "./dist/styles.css": "./dist/styles.css",
+    "./dist/*": "./dist/*.js",
+    "./dist/*.js": "./dist/*.js",
+    "./dist/*.cjs": "./dist/*.cjs"
+  },
+  "scripts": {
+    "css:watch": "tailwindcss -i ./src/styles.css -o ./dist/styles.css -w",
+    "prebuild": "mkdir -p dist && tailwindcss -i ./src/styles.css -o ./dist/styles.css -m && node scripts/css-rem-to-px.mjs",
+    "build": "NODE_ENV=production tsup",
+    "dev": "concurrently \"pnpm:css:watch\" \"tsup --watch --ignore-watch dist\"",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "test": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "publint": "publint",
+    "prepublishOnly": "pnpm build",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "@medv/finder": "^4.0.2",
+    "@ui-grab/cli": "workspace:*",
+    "bippy": "^0.5.32",
+    "element-source": "^0.0.3",
+    "solid-js": "^1.9.10"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@playwright/test": "^1.40.0",
+    "@tailwindcss/cli": "^4.1.17",
+    "@types/node": "^20.19.23",
+    "@types/react": "^19.2.11",
+    "babel-preset-solid": "^1.9.10",
+    "clsx": "^2.1.1",
+    "concurrently": "^9.1.2",
+    "esbuild-plugin-babel": "^0.2.3",
+    "oxlint": "^1.42.0",
+    "publint": "^0.2.12",
+    "tailwindcss": "^4.1.0",
+    "tsup": "^8.2.4"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}
