@@ -512,6 +512,19 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
           activationHoldState.holdTimerFired = true;
           return;
         }
+        actions.setPendingCommentMode(false);
+        pendingDefaultActionId = null;
+        isPendingContextMenuSelect = false;
+        if (store.hasAgentProvider) {
+          const defaultActionId =
+            currentToolbarState()?.defaultAction ?? DEFAULT_ACTION_ID;
+          if (defaultActionId === DEFAULT_ACTION_ID) {
+            actions.setPendingCommentMode(true);
+          } else {
+            pendingDefaultActionId = defaultActionId;
+            isPendingContextMenuSelect = true;
+          }
+        }
         actions.activate();
       }, store.keyHoldDuration);
       onCleanup(clearHoldTimer);
@@ -1942,18 +1955,32 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
       }
     };
 
+    const primePendingSelectionAction = (
+      requireAgentProvider: boolean = false,
+    ) => {
+      actions.setPendingCommentMode(false);
+      pendingDefaultActionId = null;
+      isPendingContextMenuSelect = false;
+
+      if (requireAgentProvider && !store.hasAgentProvider) {
+        return;
+      }
+
+      const defaultActionId =
+        currentToolbarState()?.defaultAction ?? DEFAULT_ACTION_ID;
+      if (defaultActionId === DEFAULT_ACTION_ID) {
+        actions.setPendingCommentMode(true);
+      } else {
+        pendingDefaultActionId = defaultActionId;
+        isPendingContextMenuSelect = true;
+      }
+    };
+
     const handleToggleActive = () => {
       if (isActivated()) {
         deactivateRenderer();
       } else if (isEnabled()) {
-        const defaultActionId =
-          currentToolbarState()?.defaultAction ?? DEFAULT_ACTION_ID;
-        if (defaultActionId === DEFAULT_ACTION_ID) {
-          actions.setPendingCommentMode(true);
-        } else {
-          pendingDefaultActionId = defaultActionId;
-          isPendingContextMenuSelect = true;
-        }
+        primePendingSelectionAction();
         toggleActivate();
       }
     };
@@ -3107,6 +3134,7 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
                 !isKeyboardEventTriggeredByInput(event));
             resetCopyConfirmation();
             if (shouldActivateAfterCopy) {
+              primePendingSelectionAction(true);
               actions.activate();
             } else {
               actions.releaseHold();

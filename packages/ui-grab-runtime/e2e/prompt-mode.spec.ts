@@ -28,6 +28,19 @@ test.describe("Prompt Mode", () => {
       await expect.poll(() => uiGrab.getClipboardContent()).toBeTruthy();
     });
 
+    test("keyboard activation single click should enter prompt mode when agent is configured", async ({
+      uiGrab,
+    }) => {
+      await uiGrab.setupMockAgent();
+      await uiGrab.activateViaKeyboard();
+      await uiGrab.hoverElement("li:first-child");
+      await uiGrab.waitForSelectionBox();
+
+      await uiGrab.clickElement("li:first-child");
+
+      await expect.poll(() => uiGrab.isPromptModeActive()).toBe(true);
+    });
+
     test("should focus input textarea when entering prompt mode", async ({
       uiGrab,
     }) => {
