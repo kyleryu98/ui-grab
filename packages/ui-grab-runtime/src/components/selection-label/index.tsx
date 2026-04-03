@@ -346,11 +346,22 @@ export const SelectionLabel: Component<SelectionLabelProps> = (props) => {
 
     if (isEnterWithoutShift) {
       event.preventDefault();
+      const inputTarget = event.currentTarget;
+      if (inputTarget instanceof HTMLTextAreaElement) {
+        props.onInputChange?.(inputTarget.value);
+      }
       props.onSubmit?.();
     } else if (isEscape) {
       event.preventDefault();
       props.onConfirmDismiss?.();
     }
+  };
+
+  const submitCurrentInput = () => {
+    if (inputRef instanceof HTMLTextAreaElement) {
+      props.onInputChange?.(inputRef.value);
+    }
+    props.onSubmit?.();
   };
 
   const handleInput = (event: InputEvent) => {
@@ -701,7 +712,7 @@ export const SelectionLabel: Component<SelectionLabelProps> = (props) => {
                           "box-shadow":
                             "inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 14px rgba(15,23,42,0.16)",
                         }}
-                        onClick={() => props.onSubmit?.()}
+                        onClick={submitCurrentInput}
                       >
                         <IconSubmit size={10} class="text-white" />
                       </button>

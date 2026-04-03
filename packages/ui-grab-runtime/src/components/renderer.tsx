@@ -252,6 +252,7 @@ export const UiGrabRenderer: Component<UiGrabRendererProps> = (props) => {
         items={props.commentItems ?? []}
         disconnectedItemIds={props.commentsDisconnectedItemIds}
         activeItemId={props.activeCommentItemId ?? null}
+        isPromptMode={props.isPromptMode}
         onActivateItem={props.onActivateCommentItem}
         onEditItem={props.onCommentItemEdit}
         onCopyItem={props.onCommentItemCopy}

@@ -36,6 +36,7 @@ interface CommentsDropdownProps {
   items: CommentItem[];
   disconnectedItemIds?: Set<string>;
   activeItemId?: string | null;
+  isPromptMode?: boolean;
   onActivateItem?: (item: CommentItem) => void;
   onEditItem?: (item: CommentItem) => void;
   onCopyItem?: (item: CommentItem) => void;
@@ -195,6 +196,10 @@ export const CommentsDropdown: Component<CommentsDropdownProps> = (props) => {
         event.preventDefault();
         event.stopPropagation();
         props.onDismiss?.();
+        return;
+      }
+
+      if (props.isPromptMode) {
         return;
       }
 

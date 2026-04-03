@@ -279,6 +279,38 @@ test.describe("Comment Items", () => {
       );
     });
 
+    test("should persist the latest edited comment text when submitting with Enter", async ({
+      uiGrab,
+    }) => {
+      await copyElement(uiGrab, "li:first-child");
+
+      const beforeItems = await getStoredCommentItems(uiGrab);
+      expect(beforeItems).toHaveLength(1);
+
+      await uiGrab.clickCommentsButton();
+      await uiGrab.clickCommentItem(0);
+
+      await expect
+        .poll(() => uiGrab.isPromptModeActive(), { timeout: 3000 })
+        .toBe(true);
+
+      await uiGrab.clearInput();
+      await uiGrab.typeInInput("updated via enter");
+      await uiGrab.pressEnter();
+
+      await expect
+        .poll(() => uiGrab.isPromptModeActive(), { timeout: 5000 })
+        .toBe(false);
+
+      const afterItems = await getStoredCommentItems(uiGrab);
+      expect(afterItems).toHaveLength(1);
+      expect(afterItems[0]?.id).toBe(beforeItems[0]?.id);
+      expect(afterItems[0]?.commentText).toBe("updated via enter");
+      expect(afterItems[0]?.content.startsWith("updated via enter\n\n")).toBe(
+        true,
+      );
+    });
+
     test("should copy the updated comment content only from the row copy action", async ({
       uiGrab,
     }) => {
