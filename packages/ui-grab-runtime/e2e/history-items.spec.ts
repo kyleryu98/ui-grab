@@ -188,6 +188,44 @@ test.describe("Comment Items", () => {
       expect(await uiGrab.isCommentsDropdownVisible()).toBe(true);
     });
 
+    test("should scroll to the referenced element when selecting an offscreen comment item", async ({
+      uiGrab,
+    }) => {
+      await copyElement(uiGrab, "li:first-child");
+
+      await uiGrab.page.evaluate(() => window.scrollTo(0, 900));
+      const scrollBefore = await uiGrab.page.evaluate(() => window.scrollY);
+      expect(scrollBefore).toBeGreaterThan(0);
+
+      await uiGrab.clickCommentsButton();
+      await uiGrab.clickCommentItem(0);
+
+      await expect
+        .poll(() => uiGrab.isPromptModeActive(), { timeout: 5000 })
+        .toBe(true);
+
+      await expect
+        .poll(() => uiGrab.page.evaluate(() => window.scrollY), {
+          timeout: 5000,
+        })
+        .toBeLessThan(scrollBefore);
+
+      await expect
+        .poll(async () => {
+          const box = await uiGrab.page
+            .getByRole("listitem")
+            .filter({ hasText: "Buy groceries" })
+            .boundingBox();
+          if (!box) return null;
+          return box.y + box.height / 2;
+        })
+        .toBeGreaterThan(0);
+
+      const labelInfo = await uiGrab.getSelectionLabelInfo();
+      expect(labelInfo.isVisible).toBe(true);
+      expect(labelInfo.tagName).toBe("li");
+    });
+
     test("should not copy comment content when clicking a comment row", async ({
       uiGrab,
     }) => {
