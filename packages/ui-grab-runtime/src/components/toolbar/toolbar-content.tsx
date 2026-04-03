@@ -102,7 +102,7 @@ export const ToolbarContent: Component<ToolbarContentProps> = (props) => {
         isVertical() && "flex-col",
         props.isCollapsed
           ? "justify-center overflow-visible"
-          : "justify-between overflow-hidden rounded-[14px] [corner-shape:superellipse(1.25)] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.74)_0%,rgba(247,247,247,0.56)_48%,rgba(238,238,238,0.4)_100%)] shadow-[0_12px_28px_rgba(17,24,39,0.14),0_2px_6px_rgba(255,255,255,0.66)_inset,0_-1px_0_rgba(255,255,255,0.28)_inset] backdrop-blur-[22px]",
+          : "justify-between overflow-hidden rounded-[14px] [corner-shape:superellipse(1.25)] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.74)_0%,rgba(247,247,247,0.56)_48%,rgba(238,238,238,0.4)_100%)] shadow-[0_12px_28px_rgba(17,24,39,0.14),0_2px_6px_rgba(255,255,255,0.66)_inset,0_-1px_0_rgba(255,255,255,0.28)_inset]",
         !props.isCollapsed &&
           (isVertical()
             ? "px-[7px] gap-[6px] py-[8px]"
@@ -115,7 +115,6 @@ export const ToolbarContent: Component<ToolbarContentProps> = (props) => {
       {!props.isCollapsed && (
         <>
           <span class="pointer-events-none absolute inset-[1px] rounded-[13px] bg-[linear-gradient(135deg,rgba(255,255,255,0.7)_0%,rgba(255,255,255,0.28)_42%,rgba(255,255,255,0.22)_100%)] opacity-90" />
-          <span class="pointer-events-none absolute inset-x-[8%] top-0 h-[44%] rounded-full bg-white/45 blur-[10px] opacity-55" />
         </>
       )}
       <div
