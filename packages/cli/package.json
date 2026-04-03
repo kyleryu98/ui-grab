@@ -1,6 +1,6 @@
 {
   "name": "@ui-grab/cli",
-  "version": "0.1.34",
+  "version": "0.1.35",
   "private": true,
   "bin": {
     "ui-grab": "./dist/cli.js"
