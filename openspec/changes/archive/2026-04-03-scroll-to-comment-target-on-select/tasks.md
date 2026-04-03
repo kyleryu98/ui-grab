@@ -1,0 +1,5 @@
+- [x] inspect the current comment-row selection flow
+- [x] reveal the referenced element before reopening prompt mode
+- [x] add a regression test for navigating to an offscreen comment target
+- [x] run typecheck and focused tests
+- [x] archive the change
