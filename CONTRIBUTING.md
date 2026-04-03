@@ -1,6 +1,6 @@
 # Contributing to UI Grab
 
-Thanks for your interest in contributing to UI Grab. This repository is an independent fork of React Grab, focused on the reusable runtime, CLI, MCP bridge, and built-in Shift multi-select support.
+Thanks for your interest in contributing to UI Grab. This repository focuses on the reusable runtime, CLI, MCP bridge, and built-in Shift multi-select support.
 
 ## Getting Started
 

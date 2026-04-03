@@ -8,7 +8,7 @@ UI context picker for coding agents with built-in `Shift + click` multi-select.
   <a href="https://github.com/kyleryu98/ui-grab/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-97ca00?style=flat-square" /></a>
 </p>
 
-`ui-grab` is an independent fork of the MIT-licensed `react-grab` project. It keeps the upstream prompt UI and comment history flow, adds built-in `Shift + click` multi-select, and ships a separate MCP bridge so browser context picking can stay lightweight by default.
+`ui-grab` keeps the prompt UI and comment history flow, adds built-in `Shift + click` multi-select, and ships a separate MCP bridge so browser context picking can stay lightweight by default.
 
 ## Packages
 
