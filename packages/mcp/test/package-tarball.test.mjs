@@ -31,10 +31,10 @@ test("packed package manifest does not leak workspace dependencies", () => {
       readFileSync(path.join(tempRoot, "package", "package.json"), "utf8"),
     );
 
-    assert.equal(packedManifest.dependencies["ui-grab"], packedManifest.version);
-    assert.ok(
-      !packedManifest.dependencies["ui-grab"].startsWith("workspace:"),
-      "packed manifest still contains a workspace protocol dependency",
+    assert.equal(
+      packedManifest.dependencies?.["ui-grab"],
+      undefined,
+      "packed manifest should not publish a direct ui-grab dependency",
     );
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
