@@ -1,5 +1,9 @@
-import type { init, ReactGrabAPI, Plugin, AgentContext } from "ui-grab/core";
 import { DEFAULT_MCP_PORT, HEALTH_CHECK_TIMEOUT_MS } from "./constants.js";
+import type {
+  UiGrabAgentContext,
+  UiGrabPlugin,
+  ReactGrabAPI,
+} from "./ui-grab-contract.js";
 
 interface McpPluginOptions {
   port?: number;
@@ -17,7 +21,9 @@ const sendContextToServer = async (
   }).catch(() => {});
 };
 
-export const createMcpPlugin = (options: McpPluginOptions = {}): Plugin => {
+export const createMcpPlugin = (
+  options: McpPluginOptions = {},
+): UiGrabPlugin => {
   const port = options.port ?? DEFAULT_MCP_PORT;
   const contextUrl = `http://localhost:${port}/context`;
 
@@ -28,8 +34,8 @@ export const createMcpPlugin = (options: McpPluginOptions = {}): Plugin => {
         void sendContextToServer(contextUrl, [content]);
       },
       transformAgentContext: async (
-        context: AgentContext,
-      ): Promise<AgentContext> => {
+        context: UiGrabAgentContext,
+      ): Promise<UiGrabAgentContext> => {
         await sendContextToServer(contextUrl, context.content, context.prompt);
         return context;
       },
@@ -42,7 +48,7 @@ const isReactGrabApi = (value: unknown): value is ReactGrabAPI =>
 
 declare global {
   interface Window {
-    __REACT_GRAB__?: ReturnType<typeof init>;
+    __REACT_GRAB__?: ReactGrabAPI;
   }
 }
 

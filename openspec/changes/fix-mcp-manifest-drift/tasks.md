@@ -1,0 +1,11 @@
+- [x] Remove MCP manifest mutation from the build path.
+- [x] Add local MCP client contract types and manifest regression tests.
+- [x] Align the runtime workspace dependency with the package name that exists on `main`.
+- [x] Update CI to install with `--frozen-lockfile` and run MCP tests.
+- [x] Verify `pnpm install --frozen-lockfile`.
+- [x] Verify `pnpm build`.
+- [x] Verify `pnpm lint`.
+- [x] Verify `pnpm typecheck`.
+- [x] Verify `pnpm --filter @react-grab/cli test`.
+- [x] Verify `pnpm --filter ui-grab-mcp test`.
+- [x] Verify CI-shaped startup coverage with `CI=1 pnpm --filter react-grab exec playwright test e2e/activation.spec.ts e2e/activation-key-config.spec.ts`.
