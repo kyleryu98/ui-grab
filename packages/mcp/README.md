@@ -1,6 +1,6 @@
 # ui-grab-mcp
 
-Optional MCP bridge for [ui-grab](https://github.com/Yongtaek-Ryu/ui-grab).
+Optional MCP bridge for [ui-grab](https://github.com/kyleryu98/ui-grab).
 
 ## Install
 
