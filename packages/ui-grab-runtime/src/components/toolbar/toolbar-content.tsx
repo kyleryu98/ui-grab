@@ -19,6 +19,7 @@ interface ToolbarContentProps {
   onPanelClick?: (event: MouseEvent) => void;
   onCollapseClick?: (event: MouseEvent) => void;
   onExpandableButtonsRef?: (element: HTMLDivElement) => void;
+  onShellRef?: (element: HTMLDivElement) => void;
   selectButton?: JSX.Element;
   commentsButton?: JSX.Element;
   toggleButton?: JSX.Element;

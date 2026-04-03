@@ -124,6 +124,23 @@ const createPersistedCommentItem = async (uiGrab: UiGrabPageObject) => {
     .toBe(true);
 };
 
+const createCommentItem = async (
+  uiGrab: UiGrabPageObject,
+  selector: string,
+) => {
+  const previousCommentCount = await uiGrab.getCommentItemCount();
+  await uiGrab.registerCommentAction();
+  await uiGrab.enterPromptMode(selector);
+  await uiGrab.typeInInput("comment");
+  await uiGrab.submitInput();
+  await expect
+    .poll(() => uiGrab.isPromptModeActive(), { timeout: 5000 })
+    .toBe(false);
+  await expect
+    .poll(() => uiGrab.getCommentItemCount(), { timeout: 5000 })
+    .toBe(previousCommentCount + 1);
+};
+
 const getSelectionHintMetrics = async (uiGrab: UiGrabPageObject) =>
   uiGrab.page.evaluate(() => {
     const host = document.querySelector("[data-ui-grab]");
@@ -151,6 +168,30 @@ const getSelectionHintMetrics = async (uiGrab: UiGrabPageObject) =>
     };
   });
 
+const getSelectionHintAlignment = async (uiGrab: UiGrabPageObject) =>
+  uiGrab.page.evaluate(() => {
+    const host = document.querySelector("[data-ui-grab]");
+    const shadowRoot = host?.shadowRoot;
+    const root = shadowRoot?.querySelector("[data-ui-grab]");
+    const hint = root?.querySelector<HTMLElement>(
+      "[data-ui-grab-selection-hint]",
+    );
+    const toolbarShell = root?.querySelector<HTMLElement>(
+      "[data-ui-grab-toolbar-shell]",
+    );
+    if (!hint || !toolbarShell) return null;
+
+    const hintRect = hint.getBoundingClientRect();
+    const toolbarShellRect = toolbarShell.getBoundingClientRect();
+
+    return {
+      hintCenterX: hintRect.left + hintRect.width / 2,
+      toolbarCenterX: toolbarShellRect.left + toolbarShellRect.width / 2,
+      hintBottom: hintRect.bottom,
+      toolbarTop: toolbarShellRect.top,
+    };
+  });
+
 const getGuidanceOverlayStack = async (uiGrab: UiGrabPageObject) =>
   uiGrab.page.evaluate(() => {
     const host = document.querySelector("[data-ui-grab]");
@@ -163,10 +204,14 @@ const getGuidanceOverlayStack = async (uiGrab: UiGrabPageObject) =>
       "[data-ui-grab-comments-dropdown]",
     );
     const toolbar = root?.querySelector<HTMLElement>("[data-ui-grab-toolbar]");
-    if (!hint || !dropdown || !toolbar) return null;
+    const toolbarShell = root?.querySelector<HTMLElement>(
+      "[data-ui-grab-toolbar-shell]",
+    );
+    if (!hint || !dropdown || !toolbar || !toolbarShell) return null;
 
     const hintRect = hint.getBoundingClientRect();
     const dropdownRect = dropdown.getBoundingClientRect();
+    const toolbarShellRect = toolbarShell.getBoundingClientRect();
     return {
       hintRect: {
         left: hintRect.left,
@@ -180,8 +225,42 @@ const getGuidanceOverlayStack = async (uiGrab: UiGrabPageObject) =>
         right: dropdownRect.right,
         bottom: dropdownRect.bottom,
       },
+      hintCenterX: hintRect.left + hintRect.width / 2,
+      toolbarCenterX: toolbarShellRect.left + toolbarShellRect.width / 2,
       toolbarZIndex: Number.parseInt(getComputedStyle(toolbar).zIndex, 10),
       dropdownZIndex: Number.parseInt(getComputedStyle(dropdown).zIndex, 10),
+    };
+  });
+
+const getToolbarOverlayLayout = async (uiGrab: UiGrabPageObject) =>
+  uiGrab.page.evaluate(() => {
+    const host = document.querySelector("[data-ui-grab]");
+    const shadowRoot = host?.shadowRoot;
+    const root = shadowRoot?.querySelector("[data-ui-grab]");
+    if (!root) return null;
+
+    const getRect = (selector: string) => {
+      const element = root.querySelector<HTMLElement>(selector);
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return null;
+      return {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+      };
+    };
+
+    const toolbarRect = getRect("[data-ui-grab-toolbar]");
+    const dropdownRect = getRect("[data-ui-grab-comments-dropdown]");
+    const hintRect = getRect("[data-ui-grab-selection-hint]");
+    if (!toolbarRect || !dropdownRect || !hintRect) return null;
+
+    return {
+      toolbarRect,
+      dropdownRect,
+      hintRect,
     };
   });
 
@@ -315,6 +394,8 @@ test.describe("Toolbar", () => {
       expect(toolbarRect?.bottom ?? viewport.height + 1).toBeLessThanOrEqual(
         viewport.height,
       );
+
+      await uiGrab.setViewportSize(1280, 720);
     });
   });
 
@@ -389,6 +470,12 @@ test.describe("Toolbar", () => {
       expect(overlayStack!.toolbarZIndex).toBeGreaterThan(
         overlayStack!.dropdownZIndex,
       );
+      expect(overlayStack!.hintRect.bottom).toBeLessThanOrEqual(
+        overlayStack!.dropdownRect.top + 1,
+      );
+      expect(
+        Math.abs(overlayStack!.hintCenterX - overlayStack!.toolbarCenterX),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
     });
 
     test("selection hint should scale up with the toolbar size", async ({
@@ -425,6 +512,156 @@ test.describe("Toolbar", () => {
       expect(scaledMetrics!.rect.height).toBeGreaterThan(
         defaultMetrics!.rect.height,
       );
+    });
+
+    test("selection hint should compact itself when the comments dropdown is open", async ({
+      uiGrab,
+    }) => {
+      await createPersistedCommentItem(uiGrab);
+      await uiGrab.activate();
+
+      await expect
+        .poll(
+          async () =>
+            (await getSelectionHintMetrics(uiGrab))?.text
+              .toLowerCase()
+              .includes("capture") ?? false,
+          { timeout: 3000 },
+        )
+        .toBe(true);
+
+      const defaultMetrics = await getSelectionHintMetrics(uiGrab);
+      expect(defaultMetrics).not.toBeNull();
+
+      await uiGrab.clickCommentsButton();
+
+      await expect
+        .poll(async () => (await getGuidanceOverlayStack(uiGrab)) !== null, {
+          timeout: 3000,
+        })
+        .toBe(true);
+      await expect
+        .poll(
+          async () =>
+            (await getSelectionHintMetrics(uiGrab))?.text
+              .toLowerCase()
+              .includes("capture") ?? false,
+          { timeout: 3000 },
+        )
+        .toBe(true);
+
+      const compactMetrics = await getSelectionHintMetrics(uiGrab);
+      expect(compactMetrics).not.toBeNull();
+      expect(compactMetrics!.rect.width).toBeLessThan(
+        defaultMetrics!.rect.width,
+      );
+      expect(compactMetrics!.kbdHeight).toBeLessThan(defaultMetrics!.kbdHeight);
+    });
+
+    test("selection hint should stay centered above the toolbar shell", async ({
+      uiGrab,
+    }) => {
+      await uiGrab.page.evaluate(() => {
+        window.__UI_GRAB__?.setToolbarState({
+          edge: "bottom",
+          ratio: 0.5,
+          scale: 1.6,
+        });
+      });
+      await uiGrab.activate();
+
+      await expect
+        .poll(async () => (await getSelectionHintAlignment(uiGrab)) !== null, {
+          timeout: 3000,
+        })
+        .toBe(true);
+
+      const alignment = await getSelectionHintAlignment(uiGrab);
+      expect(alignment).not.toBeNull();
+      expect(
+        Math.abs(alignment!.hintCenterX - alignment!.toolbarCenterX),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX);
+      expect(alignment!.hintBottom).toBeLessThanOrEqual(alignment!.toolbarTop);
+    });
+
+    test("selection hint should reappear after saving a comment", async ({
+      uiGrab,
+    }) => {
+      await createCommentItem(uiGrab, "li:first-child");
+
+      await uiGrab.deactivate();
+      await uiGrab.activate();
+
+      await expect
+        .poll(async () => (await getSelectionHintMetrics(uiGrab)) !== null, {
+          timeout: 3000,
+        })
+        .toBe(true);
+
+      const hintMetrics = await getSelectionHintMetrics(uiGrab);
+      expect(hintMetrics).not.toBeNull();
+      expect(hintMetrics!.text).toContain("capture");
+    });
+
+    test("comments dropdown should sit between the guidance hint and toolbar shell", async ({
+      uiGrab,
+    }) => {
+      await createPersistedCommentItem(uiGrab);
+
+      await uiGrab.page.evaluate(() => {
+        window.__UI_GRAB__?.setToolbarState({
+          edge: "bottom",
+          ratio: 0.5,
+          scale: 1.6,
+        });
+      });
+
+      await expect
+        .poll(() => uiGrab.isCommentsButtonVisible(), { timeout: 3000 })
+        .toBe(true);
+
+      await hoverToolbarShell(uiGrab);
+      await uiGrab.clickCommentsButton();
+      await uiGrab.activate();
+      await hoverToolbarShell(uiGrab);
+
+      await expect
+        .poll(async () => (await getToolbarOverlayLayout(uiGrab)) !== null, {
+          timeout: 3000,
+        })
+        .toBe(true);
+
+      const overlayLayout = await getToolbarOverlayLayout(uiGrab);
+      expect(overlayLayout).not.toBeNull();
+      expect(
+        rectanglesOverlap(
+          overlayLayout!.dropdownRect,
+          overlayLayout!.toolbarRect,
+        ),
+      ).toBe(false);
+      expect(
+        rectanglesOverlap(overlayLayout!.dropdownRect, overlayLayout!.hintRect),
+      ).toBe(false);
+      expect(overlayLayout!.hintRect.bottom).toBeLessThanOrEqual(
+        overlayLayout!.dropdownRect.top + 1,
+      );
+      expect(
+        overlayLayout!.dropdownRect.top - overlayLayout!.hintRect.bottom,
+      ).toBeLessThanOrEqual(10);
+      expect(
+        Math.abs(
+          (overlayLayout!.hintRect.left + overlayLayout!.hintRect.right) / 2 -
+            (overlayLayout!.dropdownRect.left +
+              overlayLayout!.dropdownRect.right) /
+              2,
+        ),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
+      expect(overlayLayout!.dropdownRect.bottom).toBeLessThanOrEqual(
+        overlayLayout!.toolbarRect.top + 1,
+      );
+      expect(
+        overlayLayout!.toolbarRect.top - overlayLayout!.dropdownRect.bottom,
+      ).toBeLessThanOrEqual(12);
     });
   });
 
@@ -701,61 +938,42 @@ test.describe("Toolbar", () => {
       await uiGrab.page.waitForTimeout(600);
     });
 
-    test("resize handle should stay hidden until hovering the toolbar", async ({
+    test("resize control should stay visible inside the toolbar shell", async ({
       uiGrab,
     }) => {
-      const initialStyles = await getShadowElementStyles(
+      const toolbarRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-shell]",
+      );
+      const handleRect = await getShadowElementRect(
         uiGrab,
         "[data-ui-grab-toolbar-resize-handle]",
       );
-      expect(initialStyles).not.toBeNull();
-      expect(Number(initialStyles?.opacity ?? "1")).toBeLessThan(0.05);
-      expect(initialStyles?.pointerEvents).toBe("none");
+      const styles = await getShadowElementStyles(
+        uiGrab,
+        "[data-ui-grab-toolbar-resize-handle]",
+      );
 
-      await hoverToolbarShell(uiGrab);
-
-      await expect
-        .poll(
-          async () => {
-            const styles = await getShadowElementStyles(
-              uiGrab,
-              "[data-ui-grab-toolbar-resize-handle]",
-            );
-            return {
-              opacity: Number(styles?.opacity ?? "0"),
-              pointerEvents: styles?.pointerEvents ?? "none",
-            };
-          },
-          { timeout: 2000 },
-        )
-        .toEqual({
-          opacity: 1,
-          pointerEvents: "auto",
-        });
-
-      await uiGrab.page.mouse.move(8, 8);
-
-      await expect
-        .poll(
-          async () => {
-            const styles = await getShadowElementStyles(
-              uiGrab,
-              "[data-ui-grab-toolbar-resize-handle]",
-            );
-            return {
-              opacity: Number(styles?.opacity ?? "1"),
-              pointerEvents: styles?.pointerEvents ?? "auto",
-            };
-          },
-          { timeout: 2000 },
-        )
-        .toEqual({
-          opacity: 0,
-          pointerEvents: "none",
-        });
+      expect(toolbarRect).not.toBeNull();
+      expect(handleRect).not.toBeNull();
+      expect(styles).not.toBeNull();
+      expect(Number(styles?.opacity ?? "0")).toBeGreaterThan(0.95);
+      expect(styles?.pointerEvents).toBe("auto");
+      expect(handleRect?.left ?? 0).toBeGreaterThanOrEqual(
+        (toolbarRect?.left ?? 0) - 1,
+      );
+      expect(handleRect?.right ?? 0).toBeLessThanOrEqual(
+        (toolbarRect?.right ?? 0) + 1,
+      );
+      expect(handleRect?.top ?? 0).toBeGreaterThanOrEqual(
+        (toolbarRect?.top ?? 0) - 1,
+      );
+      expect(handleRect?.bottom ?? 0).toBeLessThanOrEqual(
+        (toolbarRect?.bottom ?? 0) + 1,
+      );
     });
 
-    test("should resize from the revealed center handle and persist after reload", async ({
+    test("should resize from the integrated trailing control and persist after reload", async ({
       uiGrab,
     }) => {
       const beforeResize = await uiGrab.getToolbarInfo();
@@ -767,7 +985,7 @@ test.describe("Toolbar", () => {
       );
       const beforeRatio = beforeHeight > 0 ? beforeWidth / beforeHeight : 0;
 
-      await uiGrab.dragToolbarResizeHandle(36, -24);
+      await uiGrab.dragToolbarResizeHandle(28, 0);
 
       await expect
         .poll(
@@ -780,7 +998,7 @@ test.describe("Toolbar", () => {
           async () => (await uiGrab.getToolbarInfo()).dimensions?.height ?? 0,
           { timeout: 3000 },
         )
-        .toBeGreaterThan(beforeHeight + 6);
+        .toBeGreaterThan(beforeHeight + 3);
       await expect
         .poll(
           async () =>
@@ -825,7 +1043,7 @@ test.describe("Toolbar", () => {
       ).toBeLessThan(3);
     });
 
-    test("should center the resize handle on the free side when snapped to the right edge", async ({
+    test("should keep the integrated resize control docked to the toolbar end when snapped to the right side", async ({
       uiGrab,
     }) => {
       await uiGrab.page.evaluate(() => {
@@ -847,8 +1065,6 @@ test.describe("Toolbar", () => {
         .toBe(true);
       await uiGrab.page.waitForTimeout(600);
 
-      await hoverToolbarShell(uiGrab);
-
       const toolbarRect = await getShadowElementRect(
         uiGrab,
         "[data-ui-grab-toolbar-shell]",
@@ -862,20 +1078,23 @@ test.describe("Toolbar", () => {
       expect(resizeHandleRect).not.toBeNull();
       expect(
         Math.abs(
-          (resizeHandleRect?.top ?? 0) +
-            (resizeHandleRect?.height ?? 0) / 2 -
-            ((toolbarRect?.top ?? 0) + (toolbarRect?.height ?? 0) / 2),
+          (resizeHandleRect?.left ?? 0) +
+            (resizeHandleRect?.width ?? 0) / 2 -
+            ((toolbarRect?.left ?? 0) + (toolbarRect?.width ?? 0) / 2),
         ),
       ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
-      expect((resizeHandleRect?.right ?? Number.POSITIVE_INFINITY)).toBeLessThan(
-        (toolbarRect?.left ?? 0) + 1,
+      expect(resizeHandleRect?.bottom ?? 0).toBeLessThanOrEqual(
+        (toolbarRect?.bottom ?? 0) + 1,
+      );
+      expect(resizeHandleRect?.top ?? 0).toBeGreaterThanOrEqual(
+        (toolbarRect?.top ?? 0) + (toolbarRect?.height ?? 0) / 2 - 2,
       );
 
       const beforeResize = await uiGrab.getToolbarInfo();
       const beforeWidth = beforeResize.dimensions?.width ?? 0;
       const beforeHeight = beforeResize.dimensions?.height ?? 0;
 
-      await uiGrab.dragToolbarResizeHandle(-24, 36);
+      await uiGrab.dragToolbarResizeHandle(0, 28);
 
       await expect
         .poll(
@@ -943,10 +1162,9 @@ test.describe("Toolbar", () => {
       );
     });
 
-    test("resize handle should stay centered above the toolbar and keep its tooltip above the button", async ({
+    test("resize control should keep its tooltip above the toolbar shell center", async ({
       uiGrab,
     }) => {
-      await hoverToolbarShell(uiGrab);
       await hoverResizeHandle(uiGrab);
 
       await expect
@@ -966,10 +1184,6 @@ test.describe("Toolbar", () => {
         uiGrab,
         "[data-ui-grab-toolbar-shell]",
       );
-      const collapseRect = await getShadowElementRect(
-        uiGrab,
-        "[data-ui-grab-toolbar-collapse]",
-      );
       const resizeHandleRect = await getShadowElementRect(
         uiGrab,
         "[data-ui-grab-toolbar-resize-handle]",
@@ -978,33 +1192,100 @@ test.describe("Toolbar", () => {
         uiGrab,
         "[data-ui-grab-toolbar-resize-tooltip]",
       );
+      const tooltipText = await uiGrab.page.evaluate(() => {
+        const host = document.querySelector("[data-ui-grab]");
+        const shadowRoot = host?.shadowRoot;
+        const root = shadowRoot?.querySelector("[data-ui-grab]");
+        return root
+          ?.querySelector<HTMLElement>("[data-ui-grab-toolbar-resize-tooltip]")
+          ?.textContent?.trim();
+      });
 
       expect(toolbarRect).not.toBeNull();
-      expect(collapseRect).not.toBeNull();
       expect(resizeHandleRect).not.toBeNull();
       expect(tooltipRect).not.toBeNull();
+      expect(tooltipText).toBe("Drag to resize");
       expect(
         Math.abs(
-          (resizeHandleRect?.left ?? 0) +
-            (resizeHandleRect?.width ?? 0) / 2 -
+          (resizeHandleRect?.top ?? 0) +
+            (resizeHandleRect?.height ?? 0) / 2 -
+            ((toolbarRect?.top ?? 0) + (toolbarRect?.height ?? 0) / 2),
+        ),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
+      expect(resizeHandleRect?.right ?? 0).toBeLessThanOrEqual(
+        (toolbarRect?.right ?? 0) + 1,
+      );
+      expect(tooltipRect?.bottom ?? Number.POSITIVE_INFINITY).toBeLessThan(
+        (toolbarRect?.top ?? 0) + 1,
+      );
+      expect(
+        Math.abs(
+          (tooltipRect?.left ?? 0) +
+            (tooltipRect?.width ?? 0) / 2 -
             ((toolbarRect?.left ?? 0) + (toolbarRect?.width ?? 0) / 2),
         ),
       ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
-      expect((resizeHandleRect?.bottom ?? Number.POSITIVE_INFINITY)).toBeLessThan(
-        (toolbarRect?.top ?? 0) + 1,
+      expect(tooltipRect?.width ?? 0).toBeGreaterThan(
+        (resizeHandleRect?.width ?? 0) + 18,
       );
-      expect((tooltipRect?.bottom ?? Number.POSITIVE_INFINITY)).toBeLessThan(
-        (resizeHandleRect?.top ?? 0) + 1,
+      expect(tooltipRect?.top ?? 0).toBeGreaterThan(
+        (toolbarRect?.top ?? 0) - 64,
       );
-      expect(
-        rectanglesOverlap(
-          collapseRect ?? { left: 0, top: 0, right: 0, bottom: 0 },
-          resizeHandleRect ?? { left: 0, top: 0, right: 0, bottom: 0 },
-        ),
-      ).toBe(false);
     });
 
-    test("resize handle should stay revealed while moving from the toolbar body to the handle", async ({
+    test("resize control should keep its tooltip above a vertical toolbar shell center", async ({
+      uiGrab,
+    }) => {
+      await uiGrab.page.evaluate(() => {
+        window.__UI_GRAB__?.setToolbarState({
+          edge: "right",
+          ratio: 0.5,
+          scale: 1,
+        });
+      });
+      await expect
+        .poll(() => uiGrab.isToolbarVisible(), { timeout: 3000 })
+        .toBe(true);
+
+      await hoverResizeHandle(uiGrab);
+
+      await expect
+        .poll(
+          async () =>
+            Boolean(
+              await getShadowElementRect(
+                uiGrab,
+                "[data-ui-grab-toolbar-resize-tooltip]",
+              ),
+            ),
+          { timeout: 2000 },
+        )
+        .toBe(true);
+
+      const toolbarRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-shell]",
+      );
+      const tooltipRect = await getShadowElementRect(
+        uiGrab,
+        "[data-ui-grab-toolbar-resize-tooltip]",
+      );
+
+      expect(toolbarRect).not.toBeNull();
+      expect(tooltipRect).not.toBeNull();
+      expect(tooltipRect?.bottom ?? Number.POSITIVE_INFINITY).toBeLessThan(
+        (toolbarRect?.top ?? 0) + 1,
+      );
+      expect(
+        Math.abs(
+          (tooltipRect?.left ?? 0) +
+            (tooltipRect?.width ?? 0) / 2 -
+            ((toolbarRect?.left ?? 0) + (toolbarRect?.width ?? 0) / 2),
+        ),
+      ).toBeLessThanOrEqual(CENTER_ALIGNMENT_TOLERANCE_PX + 1);
+    });
+
+    test("resize control should stay visible while moving from the toolbar body to the control", async ({
       uiGrab,
     }) => {
       await hoverToolbarShell(uiGrab);

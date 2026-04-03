@@ -213,6 +213,7 @@ export const UiGrabRenderer: Component<UiGrabRendererProps> = (props) => {
           clockFlashTrigger={props.clockFlashTrigger}
           onToggleComments={props.onToggleComments}
           onCommentsButtonHover={props.onCommentsButtonHover}
+          commentsDropdownAnchor={props.commentsDropdownPosition ?? null}
           isCommentsDropdownOpen={Boolean(props.commentsDropdownPosition)}
           isCommentsPinned={props.isCommentsPinned}
           onToggleToolbarMenu={props.onToggleToolbarMenu}

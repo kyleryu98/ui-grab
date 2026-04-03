@@ -4016,7 +4016,7 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
       if (edge === "left" || edge === "right") {
         return {
           x: edge === "left" ? toolbarRect.right : toolbarRect.left,
-          y: toolbarRect.top + toolbarRect.height / 2,
+          y: (toolbarRect.top + toolbarRect.bottom) / 2,
           edge,
           toolbarWidth: toolbarRect.width,
           toolbarScale,
@@ -4024,7 +4024,7 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
       }
 
       return {
-        x: toolbarRect.left + toolbarRect.width / 2,
+        x: (toolbarRect.left + toolbarRect.right) / 2,
         y: edge === "top" ? toolbarRect.bottom : toolbarRect.top,
         edge,
         toolbarWidth: toolbarRect.width,

@@ -1,8 +1,9 @@
-import type { Component } from "solid-js";
+import type { Component, JSX } from "solid-js";
 
 interface IconResizeAxisProps {
   size?: number;
   class?: string;
+  style?: JSX.CSSProperties;
 }
 
 export const IconResizeAxis: Component<IconResizeAxisProps> = (props) => {
@@ -16,15 +17,15 @@ export const IconResizeAxis: Component<IconResizeAxisProps> = (props) => {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2.15"
+      stroke-width="1.9"
       stroke-linecap="round"
       stroke-linejoin="round"
       class={props.class}
+      style={props.style}
     >
-      <path d="M12 4v16" />
-      <path d="m8.75 7.25 3.25-3.25 3.25 3.25" />
-      <path d="m8.75 16.75 3.25 3.25 3.25-3.25" />
-      <path d="M9 12h6" opacity="0.34" />
+      <path d="M6.5 12h11" />
+      <path d="m8.9 9.4-2.9 2.6 2.9 2.6" />
+      <path d="m15.1 9.4 2.9 2.6-2.9 2.6" />
     </svg>
   );
 };

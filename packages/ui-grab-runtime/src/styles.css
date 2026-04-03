@@ -76,6 +76,15 @@
   }
 }
 
+@keyframes tooltip-fade-in-static {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes icon-loader-spin {
   0% {
     opacity: 1;
@@ -153,6 +162,11 @@
 .animate-tooltip-fade-in {
   animation: tooltip-fade-in var(--transition-fast) ease-out;
   will-change: transform, opacity;
+}
+
+.animate-tooltip-fade-in-static {
+  animation: tooltip-fade-in-static var(--transition-fast) ease-out;
+  will-change: opacity;
 }
 
 @utility press-scale {

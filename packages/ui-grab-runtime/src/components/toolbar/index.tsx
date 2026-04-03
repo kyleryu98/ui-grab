@@ -7,8 +7,8 @@ import {
   onCleanup,
   Show,
 } from "solid-js";
-import type { Component } from "solid-js";
-import type { Position } from "../../types.js";
+import type { Component, JSX } from "solid-js";
+import type { DropdownAnchor, Position } from "../../types.js";
 import { cn } from "../../utils/cn.js";
 import { formatShortcut } from "../../utils/format-shortcut.js";
 import {
@@ -91,6 +91,7 @@ interface ToolbarProps {
   clockFlashTrigger?: number;
   onToggleComments?: () => void;
   onCommentsButtonHover?: (isHovered: boolean) => void;
+  commentsDropdownAnchor?: DropdownAnchor | null;
   isCommentsDropdownOpen?: boolean;
   isClearPromptOpen?: boolean;
   isCommentsPinned?: boolean;
@@ -108,11 +109,13 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   let containerRef: HTMLDivElement | undefined;
   let scaledContentRef: HTMLDivElement | undefined;
   let expandableButtonsRef: HTMLDivElement | undefined;
+  let toolbarShellRef: HTMLDivElement | undefined;
   let toolbarSizeObserver: ResizeObserver | undefined;
   let unfreezeUpdatesCallback: (() => void) | null = null;
   let lastKnownExpandableWidth = 0;
   let lastKnownExpandableHeight = 0;
   let initialLayoutSyncRafId: number | undefined;
+  let guidanceLayoutSyncRafId: number | undefined;
   let hasSyncedInitialLayout = false;
 
   const safePolygonTracker = createSafePolygonTracker();
@@ -153,11 +156,12 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   const [isResizeHandleHovered, setIsResizeHandleHovered] = createSignal(false);
   const [isResizeTooltipVisible, setIsResizeTooltipVisible] =
     createSignal(false);
-  const [supportsHover, setSupportsHover] = createSignal(true);
   const [snapEdge, setSnapEdge] = createSignal<SnapEdge>(
     savedState?.edge ?? "bottom",
   );
   const isVertical = () => snapEdge() === "left" || snapEdge() === "right";
+  const resizeHandleSide = (): "right" | "bottom" =>
+    isVertical() ? "bottom" : "right";
   const [positionRatio, setPositionRatio] = createSignal(
     savedState?.ratio ?? TOOLBAR_DEFAULT_POSITION_RATIO,
   );
@@ -199,23 +203,19 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   });
   const resizeHandleMetrics = createMemo(() => {
     const scale = toolbarScale();
-    const primarySize = Math.round(clampToRange(40 * scale, 34, 56));
-    const secondarySize = Math.round(clampToRange(26 * scale, 22, 36));
-    const gap = Math.round(clampToRange(10 * scale, 8, 16));
-    const bridgePadding = Math.round(clampToRange(10 * scale, 8, 16));
-    const width = isVertical() ? secondarySize : primarySize;
-    const height = isVertical() ? primarySize : secondarySize;
+    const longSize = Math.round(clampToRange(36 * scale, 32, 46));
+    const shortSize = Math.round(clampToRange(28 * scale, 24, 34));
+    const width = resizeHandleSide() === "right" ? longSize : shortSize;
+    const height = resizeHandleSide() === "right" ? shortSize : longSize;
     return {
       width,
       height,
-      icon: Math.round(clampToRange(13 * scale, 11, 19)),
-      gap,
-      bridgePadding,
+      icon: Math.round(clampToRange(11 * scale, 10, 15)),
       radius: Math.round(Math.min(width, height) / 2),
-      innerRadius: Math.max(9, Math.round(Math.min(width, height) / 2) - 2),
-      tooltipScale: clampToRange(scale, 1, 1.16),
+      tooltipScale: clampToRange(scale, 0.96, 1.12),
     };
   });
+  const resizeTooltipScale = () => resizeHandleMetrics().tooltipScale;
   const [position, setPosition] = createSignal({ x: 0, y: 0 });
   const [isShaking, setIsShaking] = createSignal(false);
   const [isCollapseAnimating, setIsCollapseAnimating] = createSignal(false);
@@ -228,7 +228,25 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   const [isRapidRetoggle, setIsRapidRetoggle] = createSignal(false);
   const [isCommentsTooltipVisible, setIsCommentsTooltipVisible] =
     createSignal(false);
+  const [toolbarShellAnchorVersion, setToolbarShellAnchorVersion] =
+    createSignal(0);
+  const [isSelectionHintReady, setIsSelectionHintReady] = createSignal(false);
+  const [selectionHintBubbleSize, setSelectionHintBubbleSize] = createSignal({
+    width: 0,
+    height: 0,
+  });
+  const [resizeTooltipBubbleSize, setResizeTooltipBubbleSize] = createSignal({
+    width: 0,
+    height: 0,
+  });
+  const [shakeTooltipBubbleSize, setShakeTooltipBubbleSize] = createSignal({
+    width: 0,
+    height: 0,
+  });
   let clockFlashRef: HTMLSpanElement | undefined;
+  let resizeTooltipBubbleRef: HTMLDivElement | undefined;
+  let selectionHintBubbleRef: HTMLDivElement | undefined;
+  let shakeTooltipBubbleRef: HTMLDivElement | undefined;
   const [selectionHintIndex, setSelectionHintIndex] = createSignal(0);
   const [hasHintCycled, setHasHintCycled] = createSignal(false);
   const drag = createToolbarDrag({
@@ -265,15 +283,13 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     },
   });
 
-  const hasLearnedSelectionHints = () => (props.clockFlashTrigger ?? 0) > 0;
-
   createEffect(
     on(
-      () => [props.isActive, hasLearnedSelectionHints()] as const,
-      ([isActive, hasLearned]) => {
+      () => props.isActive,
+      (isActive) => {
         setSelectionHintIndex(0);
         setHasHintCycled(false);
-        if (!isActive || hasLearned) return;
+        if (!isActive) return;
         const intervalId = setInterval(() => {
           if (!hasHintCycled()) setHasHintCycled(true);
           setSelectionHintIndex(
@@ -281,6 +297,96 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
           );
         }, SELECTION_HINT_CYCLE_INTERVAL_MS);
         onCleanup(() => clearInterval(intervalId));
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      [
+        () => props.isActive,
+        selectionHintIndex,
+        () => props.isCommentsDropdownOpen,
+        toolbarScale,
+        snapEdge,
+      ],
+      ([isActive]) => {
+        if (!isActive) return;
+        nativeRequestAnimationFrame(() => {
+          updateBubbleSize(
+            selectionHintBubbleRef,
+            guidanceTooltipScale(),
+            setSelectionHintBubbleSize,
+          );
+        });
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      [isShakeTooltipVisible, toolbarScale, snapEdge],
+      ([isVisible]) => {
+        if (!isVisible) return;
+        nativeRequestAnimationFrame(() => {
+          updateBubbleSize(
+            shakeTooltipBubbleRef,
+            guidanceTooltipScale(),
+            setShakeTooltipBubbleSize,
+          );
+        });
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      [isResizeTooltipVisible, toolbarScale, snapEdge],
+      ([isVisible]) => {
+        if (!isVisible) return;
+        nativeRequestAnimationFrame(() => {
+          updateBubbleSize(
+            resizeTooltipBubbleRef,
+            resizeTooltipScale(),
+            setResizeTooltipBubbleSize,
+          );
+        });
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      () => props.isActive,
+      (isActive) => {
+        if (!isActive) {
+          setIsSelectionHintReady(false);
+          return;
+        }
+        setIsSelectionHintReady(false);
+        scheduleToolbarShellAnchorSync();
+      },
+      { defer: true },
+    ),
+  );
+
+  createEffect(
+    on(
+      [
+        () => props.isActive,
+        () => props.isCommentsDropdownOpen,
+        toolbarScale,
+        snapEdge,
+        () => currentPosition().x,
+        () => currentPosition().y,
+      ],
+      ([isActive, isCommentsOpen]) => {
+        if (!isActive && !isCommentsOpen) return;
+        scheduleToolbarShellAnchorSync();
       },
       { defer: true },
     ),
@@ -398,155 +504,288 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
 
   const hitboxConstraintClass = () => getHitboxConstraintClass(isVertical());
   const resizeCursorClass = () => {
-    const edge = snapEdge();
-    return edge === "bottom" || edge === "top"
-      ? "cursor-ns-resize"
-      : "cursor-ew-resize";
-  };
-  const resizeHandleHitboxStyle = () => {
-    const { width, height, gap, bridgePadding } = resizeHandleMetrics();
-
-    if (isVertical()) {
-      const hitboxWidth = width + gap;
-      const hitboxHeight = height + bridgePadding * 2;
-
-      switch (snapEdge()) {
-        case "left":
-          return {
-            top: "50%",
-            right: `-${width + gap}px`,
-            width: `${hitboxWidth}px`,
-            height: `${hitboxHeight}px`,
-            transform: "translateY(-50%)",
-          };
-        case "right":
-        default:
-          return {
-            top: "50%",
-            left: `-${width + gap}px`,
-            width: `${hitboxWidth}px`,
-            height: `${hitboxHeight}px`,
-            transform: "translateY(-50%)",
-          };
-      }
-    }
-
-    const hitboxWidth = width + bridgePadding * 2;
-    const hitboxHeight = height + gap;
-
-    switch (snapEdge()) {
-      case "top":
-        return {
-          left: "50%",
-          bottom: `-${height + gap}px`,
-          width: `${hitboxWidth}px`,
-          height: `${hitboxHeight}px`,
-          transform: "translateX(-50%)",
-        };
-      case "bottom":
-      default:
-        return {
-          left: "50%",
-          top: `-${height + gap}px`,
-          width: `${hitboxWidth}px`,
-          height: `${hitboxHeight}px`,
-          transform: "translateX(-50%)",
-        };
-    }
-  };
-  const resizeHandleButtonStyle = () => {
-    const { width, height } = resizeHandleMetrics();
-
-    if (isVertical()) {
-      switch (snapEdge()) {
-        case "left":
-          return {
-            top: "50%",
-            right: "0",
-            width: `${width}px`,
-            height: `${height}px`,
-            transform: "translateY(-50%)",
-          };
-        case "right":
-        default:
-          return {
-            top: "50%",
-            left: "0",
-            width: `${width}px`,
-            height: `${height}px`,
-            transform: "translateY(-50%)",
-          };
-      }
-    }
-
-    switch (snapEdge()) {
-      case "top":
-        return {
-          left: "50%",
-          bottom: "0",
-          width: `${width}px`,
-          height: `${height}px`,
-          transform: "translateX(-50%)",
-        };
-      case "bottom":
-      default:
-        return {
-          left: "50%",
-          top: "0",
-          width: `${width}px`,
-          height: `${height}px`,
-          transform: "translateX(-50%)",
-        };
-    }
-  };
-  const resizeHandleTooltipPointClass = (): string => {
-    switch (snapEdge()) {
-      case "top":
-        return "pointer-events-none absolute bottom-0 left-1/2";
-      case "left":
-        return "pointer-events-none absolute right-0 top-1/2";
-      case "right":
-        return "pointer-events-none absolute left-0 top-1/2";
-      case "bottom":
-      default:
-        return "pointer-events-none absolute left-1/2 top-0";
-    }
-  };
-  const resizeHandleTooltipBubblePositionClass = (): string => {
-    const side = tooltipPosition();
-    if (side === "left" || side === "right") {
-      return cn(
-        "absolute top-1/2 -translate-y-1/2",
-        side === "left" ? "right-full mr-2.5" : "left-full ml-2.5",
-      );
-    }
-    return cn(
-      "absolute left-1/2 -translate-x-1/2",
-      side === "top" ? "bottom-full mb-2.5" : "top-full mt-2.5",
-    );
+    return resizeHandleSide() === "right"
+      ? "cursor-ew-resize"
+      : "cursor-ns-resize";
   };
   const resizeHandleIconClass = () =>
-    cn(
-      "pointer-events-none relative z-10 transition-transform duration-200 ease-out",
-      isVertical() && "rotate-90",
-    );
+    "pointer-events-none relative z-10 transition-[transform,opacity] ease-out";
   const resizeTooltipBubbleClass = TOOLTIP_BASE_CLASS.replace("absolute ", "");
-  const isResizeHandleVisible = () =>
-    !supportsHover() ||
-    isToolbarHovered() ||
-    isResizeHandleHovered() ||
-    isResizing();
-
-  const shakeTooltipPositionClass = (): string => {
-    const tooltipSide = tooltipPosition();
-    if (isVertical()) {
-      const placementClass =
-        tooltipSide === "left" ? "right-full mr-0.5" : "left-full ml-0.5";
-      return `top-1/2 -translate-y-1/2 ${placementClass}`;
+  const guidanceTooltipBubbleClass = TOOLTIP_BASE_CLASS.replace(
+    "absolute ",
+    "",
+  );
+  const isResizeHandleVisible = () => !isCollapsed();
+  const resizeControlButtonClass = () =>
+    cn(
+      "contain-layout relative flex items-center justify-center overflow-hidden rounded-[11px] border border-white/48 bg-white/24 shadow-[inset_0_1px_0_rgba(255,255,255,0.58)] backdrop-blur-[14px] transition-[background-color,box-shadow,transform,color] duration-150 ease-out",
+      resizeCursorClass(),
+      isVertical() ? "h-[36px] w-7 my-0.5" : "h-7 w-[36px] mx-0.5",
+      (isResizeHandleHovered() || isResizing()) &&
+        "bg-white/34 shadow-[inset_0_1px_0_rgba(255,255,255,0.68),0_4px_12px_rgba(17,24,39,0.08)]",
+    );
+  const resizeHandleMotionStyle = () => {
+    const emphasized = isResizeHandleHovered() || isResizing();
+    return {
+      width: `${resizeHandleMetrics().width}px`,
+      height: `${resizeHandleMetrics().height}px`,
+      transform: `scale(${emphasized ? 1.02 : 1})`,
+      "will-change": "transform",
+      transitionProperty: "transform",
+      transitionDuration: emphasized ? "150ms" : "180ms",
+      transitionTimingFunction: emphasized
+        ? "cubic-bezier(0.24, 0.98, 0.32, 1)"
+        : "cubic-bezier(0.4, 0, 0.22, 1)",
+    };
+  };
+  const resizeHandleIconStyle = () => ({
+    transform: `${isVertical() ? "rotate(90deg) " : ""}scale(${
+      isResizeHandleHovered() || isResizing() ? 1.05 : 1
+    })`,
+    opacity: isResizeHandleHovered() || isResizing() ? "0.86" : "0.62",
+    transitionProperty: "transform, opacity",
+    transitionDuration: "150ms",
+    transitionTimingFunction:
+      isResizeHandleHovered() || isResizing()
+        ? "cubic-bezier(0.24, 0.98, 0.34, 1)"
+        : "cubic-bezier(0.4, 0, 0.22, 1)",
+  });
+  const isGuidanceTooltipCompact = () => {
+    const viewport = getVisualViewport();
+    return (
+      Boolean(props.isCommentsDropdownOpen) ||
+      viewport.width <= 1120 ||
+      viewport.height <= 760
+    );
+  };
+  const guidanceTooltipScale = () => {
+    const baseScale = toolbarScale();
+    if (props.isCommentsDropdownOpen) {
+      return clampToRange(baseScale * 0.82, 0.8, 1.02);
     }
-    const placementClass =
-      tooltipSide === "top" ? "bottom-full mb-0.5" : "top-full mt-0.5";
-    return `left-1/2 -translate-x-1/2 ${placementClass}`;
+    if (isGuidanceTooltipCompact()) {
+      return clampToRange(baseScale * 0.92, 0.88, 1.08);
+    }
+    return clampToRange(baseScale, 0.94, 1.18);
+  };
+  const toContainerRelativeRect = (rect: DOMRect) => {
+    if (!containerRef) return null;
+    const containerRect = containerRef.getBoundingClientRect();
+    return {
+      left: rect.left - containerRect.left,
+      top: rect.top - containerRect.top,
+      right: rect.right - containerRect.left,
+      bottom: rect.bottom - containerRect.top,
+      width: rect.width,
+      height: rect.height,
+    };
+  };
+  const getRelativeOverlayRect = (selector: string) => {
+    const rootNode = containerRef?.getRootNode();
+    if (!(rootNode instanceof ShadowRoot)) return null;
+    const element = rootNode.querySelector<HTMLElement>(selector);
+    if (!element) return null;
+    const rect = element.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
+    return toContainerRelativeRect(rect);
+  };
+  const getToolbarShellRelativeRect = () => {
+    toolbarShellAnchorVersion();
+
+    if (toolbarShellRef) {
+      const rect = toolbarShellRef.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return toContainerRelativeRect(rect);
+      }
+    }
+
+    return getRelativeOverlayRect("[data-ui-grab-toolbar-shell]");
+  };
+  const getGuidanceTooltipTargetRect = () =>
+    props.commentsDropdownAnchor
+      ? getRelativeOverlayRect("[data-ui-grab-comments-dropdown]")
+      : null;
+  const updateBubbleSize = (
+    element: HTMLDivElement | undefined,
+    scale: number,
+    setSize: (updater: (current: { width: number; height: number }) => {
+      width: number;
+      height: number;
+    }) => void,
+  ) => {
+    if (!element) return;
+    const rect = element.getBoundingClientRect();
+    const width = rect.width / scale;
+    const height = rect.height / scale;
+    if (width <= 0 || height <= 0) return;
+    setSize((current) =>
+      current.width === width && current.height === height
+        ? current
+        : { width, height },
+    );
+  };
+  const scheduleToolbarShellAnchorSync = () => {
+    if (guidanceLayoutSyncRafId !== undefined) {
+      nativeCancelAnimationFrame(guidanceLayoutSyncRafId);
+    }
+    guidanceLayoutSyncRafId = nativeRequestAnimationFrame(() => {
+      guidanceLayoutSyncRafId = undefined;
+      setToolbarShellAnchorVersion((version) => version + 1);
+      if (props.isActive) {
+        setIsSelectionHintReady(true);
+      }
+    });
+  };
+  const guidanceTooltipGap = () =>
+    props.commentsDropdownAnchor
+      ? Math.round(clampToRange(4 * guidanceTooltipScale(), 4, 6))
+      : Math.round(clampToRange(6 * guidanceTooltipScale(), 4, 8));
+  const resizeTooltipGap = () =>
+    Math.round(clampToRange(8 * resizeTooltipScale(), 6, 10));
+  const resizeTooltipWrapperStyles = createMemo<JSX.CSSProperties>(() => {
+    const shellRect = getToolbarShellRelativeRect();
+    const gap = resizeTooltipGap();
+    const scale = resizeTooltipScale();
+    const scaledWidth = resizeTooltipBubbleSize().width * scale;
+    const scaledHeight = resizeTooltipBubbleSize().height * scale;
+    const hasMeasuredBubble = scaledWidth > 0 && scaledHeight > 0;
+
+    if (shellRect) {
+      const centerX = shellRect.left + shellRect.width / 2;
+      return {
+        "z-index": String(Z_INDEX_OVERLAY),
+        position: "absolute",
+        left: hasMeasuredBubble
+          ? `${centerX - scaledWidth / 2}px`
+          : `${centerX}px`,
+        top: hasMeasuredBubble
+          ? `${shellRect.top - gap - scaledHeight}px`
+          : `${shellRect.top - gap}px`,
+        transform: hasMeasuredBubble ? "none" : "translate(-50%, -100%)",
+        display: "flex",
+        "justify-content": "center",
+      };
+    }
+
+    return {
+      "z-index": String(Z_INDEX_OVERLAY),
+      position: "absolute",
+      left: "50%",
+      top: `-${gap}px`,
+      transform: "translate(-50%, -100%)",
+      display: "flex",
+      "justify-content": "center",
+    };
+  });
+  const guidanceTooltipPositionStyle = (bubbleSize: {
+    width: number;
+    height: number;
+  }): JSX.CSSProperties => {
+    const anchorRect = getToolbarShellRelativeRect();
+    const dropdownRect = getGuidanceTooltipTargetRect();
+    const gap = guidanceTooltipGap();
+    const tooltipSide = tooltipPosition();
+    const scale = guidanceTooltipScale();
+    const scaledWidth = bubbleSize.width * scale;
+    const scaledHeight = bubbleSize.height * scale;
+
+    if (anchorRect) {
+      const centerX = anchorRect.left + anchorRect.width / 2;
+      const centerY = anchorRect.top + anchorRect.height / 2;
+      const hasMeasuredBubble = scaledWidth > 0 && scaledHeight > 0;
+
+      switch (tooltipSide) {
+        case "top":
+          return {
+            position: "absolute",
+            left: hasMeasuredBubble
+              ? `${centerX - scaledWidth / 2}px`
+              : `${centerX}px`,
+            top: hasMeasuredBubble
+              ? `${(dropdownRect?.top ?? anchorRect.top) - gap - scaledHeight}px`
+              : `${(dropdownRect?.top ?? anchorRect.top) - gap}px`,
+            transform: hasMeasuredBubble ? "none" : "translate(-50%, -100%)",
+            display: "flex",
+            "justify-content": "center",
+          };
+        case "bottom":
+          return {
+            position: "absolute",
+            left: hasMeasuredBubble
+              ? `${centerX - scaledWidth / 2}px`
+              : `${centerX}px`,
+            top: `${(dropdownRect?.bottom ?? anchorRect.bottom) + gap}px`,
+            transform: hasMeasuredBubble ? "none" : "translateX(-50%)",
+            display: "flex",
+            "justify-content": "center",
+          };
+        case "left":
+          return {
+            position: "absolute",
+            left: hasMeasuredBubble
+              ? `${(dropdownRect?.left ?? anchorRect.left) - gap - scaledWidth}px`
+              : `${(dropdownRect?.left ?? anchorRect.left) - gap}px`,
+            top: hasMeasuredBubble
+              ? `${centerY - scaledHeight / 2}px`
+              : `${centerY}px`,
+            transform: hasMeasuredBubble ? "none" : "translate(-100%, -50%)",
+            display: "flex",
+            "align-items": "center",
+          };
+        case "right":
+        default:
+          return {
+            position: "absolute",
+            left: `${(dropdownRect?.right ?? anchorRect.right) + gap}px`,
+            top: hasMeasuredBubble
+              ? `${centerY - scaledHeight / 2}px`
+              : `${centerY}px`,
+            transform: hasMeasuredBubble ? "none" : "translateY(-50%)",
+            display: "flex",
+            "align-items": "center",
+          };
+      }
+    }
+
+    switch (tooltipSide) {
+      case "top":
+        return {
+          position: "absolute",
+          left: "50%",
+          top: `-${gap}px`,
+          transform: "translate(-50%, -100%)",
+          display: "flex",
+          "justify-content": "center",
+        };
+      case "bottom":
+        return {
+          position: "absolute",
+          left: "50%",
+          top: `calc(100% + ${gap}px)`,
+          transform: "translateX(-50%)",
+          display: "flex",
+          "justify-content": "center",
+        };
+      case "left":
+        return {
+          position: "absolute",
+          left: `-${gap}px`,
+          top: "50%",
+          transform: "translate(-100%, -50%)",
+          display: "flex",
+          "align-items": "center",
+        };
+      case "right":
+      default:
+        return {
+          position: "absolute",
+          left: `calc(100% + ${gap}px)`,
+          top: "50%",
+          transform: "translateY(-50%)",
+          display: "flex",
+          "align-items": "center",
+        };
+    }
   };
 
   const guidanceTooltipTransformOrigin = (): string => {
@@ -563,6 +802,25 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
         return "left center";
     }
   };
+  const hasMeasuredSelectionHintBubble = () =>
+    selectionHintBubbleSize().width > 0 && selectionHintBubbleSize().height > 0;
+  const hasMeasuredShakeBubble = () =>
+    shakeTooltipBubbleSize().width > 0 && shakeTooltipBubbleSize().height > 0;
+  const guidanceTooltipWrapperStyle = (): JSX.CSSProperties => {
+    return guidanceTooltipPositionStyle(selectionHintBubbleSize());
+  };
+  const selectionHintTooltipWrapperStyles = createMemo<JSX.CSSProperties>(
+    () => ({
+      "z-index": String(Z_INDEX_OVERLAY),
+      ...guidanceTooltipPositionStyle(selectionHintBubbleSize()),
+    }),
+  );
+  const shakeTooltipWrapperStyles = createMemo<JSX.CSSProperties>(() => ({
+    "z-index": String(Z_INDEX_OVERLAY),
+    ...guidanceTooltipPositionStyle(shakeTooltipBubbleSize()),
+  }));
+  const guidanceTooltipContentClass = () =>
+    cn("flex items-center", isGuidanceTooltipCompact() ? "gap-[3px]" : "gap-1");
 
   const stopEventPropagation = (event: Event) => {
     event.stopImmediatePropagation();
@@ -1161,6 +1419,9 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   let resizeStartHeight = TOOLBAR_DEFAULT_HEIGHT_PX;
   let resizeBaseWidth = TOOLBAR_DEFAULT_WIDTH_PX;
   let resizeBaseHeight = TOOLBAR_DEFAULT_HEIGHT_PX;
+  let didResizeOccur = false;
+  let resizeDragStarted = false;
+  const RESIZE_DRAG_THRESHOLD_PX = 4;
 
   const syncToolbarResizeFrame = () => {
     if (toolbarResizeRafId !== undefined) return;
@@ -1173,18 +1434,21 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   const handleToolbarResizePointerMove = (event: PointerEvent) => {
     const deltaX = event.clientX - resizePointerStartX;
     const deltaY = event.clientY - resizePointerStartY;
-    const edge = snapEdge();
-    const nextWidth = Math.max(
-      1,
-      resizeStartWidth + (edge === "right" ? -deltaX : deltaX),
-    );
-    const nextHeight = Math.max(
-      1,
-      resizeStartHeight + (edge === "bottom" ? -deltaY : deltaY),
-    );
-    const nextScale = clampToolbarScale(
-      (nextWidth / resizeBaseWidth + nextHeight / resizeBaseHeight) / 2,
-    );
+
+    if (!resizeDragStarted) {
+      if (Math.hypot(deltaX, deltaY) <= RESIZE_DRAG_THRESHOLD_PX) {
+        return;
+      }
+      resizeDragStarted = true;
+      setIsResizeTooltipVisible(false);
+      setToolbarScale(clampToolbarScale(toolbarScale()));
+      setIsResizing(true);
+    }
+
+    const nextScale =
+      resizeHandleSide() === "right"
+        ? clampToolbarScale((resizeStartWidth + deltaX) / resizeBaseWidth)
+        : clampToolbarScale((resizeStartHeight + deltaY) / resizeBaseHeight);
 
     if (nextScale === toolbarScale()) {
       return;
@@ -1199,14 +1463,22 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     window.removeEventListener("pointerup", completeToolbarResize);
     window.removeEventListener("pointercancel", completeToolbarResize);
 
+    const didStartResize = resizeDragStarted;
+    resizeDragStarted = false;
+
     if (toolbarResizeRafId !== undefined) {
       nativeCancelAnimationFrame(toolbarResizeRafId);
       toolbarResizeRafId = undefined;
     }
 
+    if (!didStartResize) {
+      return;
+    }
+
     reclampToolbarToViewport(false);
     setIsResizing(false);
     setIsResizeTooltipVisible(false);
+    didResizeOccur = true;
     const rect = containerRef?.getBoundingClientRect();
     if (!rect) return;
     expandedDimensions = { width: rect.width, height: rect.height };
@@ -1226,9 +1498,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
 
   const handleToolbarResizePointerDown = (event: PointerEvent) => {
     if (isCollapsed() || event.button !== 0) return;
-    event.preventDefault();
     event.stopImmediatePropagation();
-    setIsResizeTooltipVisible(false);
     resizePointerStartX = event.clientX;
     resizePointerStartY = event.clientY;
     const rect = containerRef?.getBoundingClientRect();
@@ -1237,12 +1507,21 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     resizeStartHeight = rect?.height ?? scaledToolbarDimensions().height;
     resizeBaseWidth = measuredBase?.width ?? baseToolbarDimensions().width;
     resizeBaseHeight = measuredBase?.height ?? baseToolbarDimensions().height;
-    setToolbarScale(clampToolbarScale(toolbarScale()));
-    setIsResizing(true);
+    resizeDragStarted = false;
 
     window.addEventListener("pointermove", handleToolbarResizePointerMove);
     window.addEventListener("pointerup", completeToolbarResize);
     window.addEventListener("pointercancel", completeToolbarResize);
+  };
+
+  const handleResizeControlClick = (event: MouseEvent) => {
+    event.stopImmediatePropagation();
+    setIsResizeTooltipVisible(false);
+    if (didResizeOccur) {
+      didResizeOccur = false;
+      return;
+    }
+    handleToggleCollapse(event);
   };
 
   const handleResize = () => {
@@ -1280,10 +1559,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   onMount(() => {
     if (containerRef) {
       props.onContainerRef?.(containerRef);
-    }
-
-    if (typeof window.matchMedia === "function") {
-      setSupportsHover(window.matchMedia("(hover: hover)").matches);
+      setToolbarShellAnchorVersion((version) => version + 1);
     }
 
     measureToolbarBaseDimensions();
@@ -1472,6 +1748,9 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     if (initialLayoutSyncRafId !== undefined) {
       nativeCancelAnimationFrame(initialLayoutSyncRafId);
     }
+    if (guidanceLayoutSyncRafId !== undefined) {
+      nativeCancelAnimationFrame(guidanceLayoutSyncRafId);
+    }
     unfreezeUpdatesCallback?.();
     safePolygonTracker.stop();
   });
@@ -1570,7 +1849,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
       >
         <div
           ref={scaledContentRef}
-          class="inline-block h-max w-max"
+          class="relative inline-block h-max w-max"
           style={{
             width: "max-content",
             transform: `scale(${toolbarScale()})`,
@@ -1590,6 +1869,10 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
             onCollapseClick={handleToggleCollapse}
             onExpandableButtonsRef={(element) => {
               expandableButtonsRef = element;
+            }}
+            onShellRef={(element) => {
+              toolbarShellRef = element;
+              setToolbarShellAnchorVersion((version) => version + 1);
             }}
             onPanelClick={(event) => {
               if (isCollapsed()) {
@@ -1760,179 +2043,201 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
                 </Tooltip>
               </>
             }
-          />
-          <Show when={!isCollapsed()}>
-            <div
-              data-ui-grab-ignore-events
-              data-ui-grab-toolbar-resize-hitbox
-              aria-hidden="true"
-              class={cn(
-                "absolute z-30 transition-opacity duration-200 ease-out",
-                isResizeHandleVisible()
-                  ? "pointer-events-auto opacity-100"
-                  : "pointer-events-none opacity-0",
-              )}
-              style={resizeHandleHitboxStyle()}
-              on:pointerdown={stopEventPropagation}
-              onMouseEnter={() => {
-                setIsResizeHandleHovered(true);
-                setIsResizeTooltipVisible(true);
-              }}
-              onMouseLeave={() => {
-                setIsResizeHandleHovered(false);
-                setIsResizeTooltipVisible(false);
-              }}
-            >
-              <div
-                class={cn(
-                  "pointer-events-none absolute rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.06)_100%)] opacity-60 blur-[1px]",
-                  isVertical() ? "inset-y-2 w-2" : "inset-x-2 h-2",
-                )}
-                style={
-                  isVertical()
-                    ? snapEdge() === "left"
-                      ? { right: "0" }
-                      : { left: "0" }
-                    : snapEdge() === "top"
-                      ? { bottom: "0" }
-                      : { top: "0" }
-                }
-              />
-              <div
-                data-ui-grab-ignore-events
-                data-ui-grab-toolbar-resize-handle
-                class={cn(
-                  "absolute flex items-center justify-center overflow-hidden rounded-full border border-white/42 bg-[linear-gradient(180deg,rgba(255,255,255,0.52)_0%,rgba(210,216,226,0.14)_100%)] text-black/38 shadow-[0_10px_24px_rgba(15,23,42,0.14),inset_0_1px_0_rgba(255,255,255,0.66),inset_0_-10px_18px_rgba(148,163,184,0.12)] backdrop-blur-[18px] transition-[transform,background-color,box-shadow,color] duration-200 ease-out",
-                  resizeCursorClass(),
-                  isResizeHandleHovered() &&
-                    "bg-[linear-gradient(180deg,rgba(255,255,255,0.62)_0%,rgba(214,220,230,0.18)_100%)] text-black/50 shadow-[0_12px_28px_rgba(15,23,42,0.18),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-12px_20px_rgba(148,163,184,0.14)]",
-                  isResizeHandleVisible()
-                    ? "pointer-events-auto opacity-100 scale-100"
-                    : "pointer-events-none opacity-0 scale-[0.94]",
-                )}
-                style={resizeHandleButtonStyle()}
-                on:pointerdown={handleToolbarResizePointerDown}
-              >
-                <span
-                  class="pointer-events-none absolute inset-[1px] rounded-full bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.55)_0%,rgba(255,255,255,0.12)_58%,rgba(255,255,255,0)_100%)]"
-                  style={{ opacity: isResizeHandleHovered() ? "1" : "0.82" }}
-                />
-                <span
-                  class="pointer-events-none absolute inset-[1px] rounded-full bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,rgba(15,23,42,0.14)_100%)]"
-                  style={{ opacity: isResizeHandleHovered() ? "0.85" : "0.65" }}
-                />
-                <IconResizeAxis
-                  size={resizeHandleMetrics().icon}
-                  class={resizeHandleIconClass()}
-                />
-                <Show
-                  when={
-                    isResizeTooltipVisible() &&
-                    isResizeHandleVisible() &&
-                    isTooltipAllowed() &&
-                    !isResizing()
-                  }
-                >
-                  <div
-                    class={resizeHandleTooltipPointClass()}
-                    style={{ "z-index": String(Z_INDEX_OVERLAY) }}
+            collapseButton={
+              isCollapsed() ? undefined : (
+                <div class="relative shrink-0 overflow-visible">
+                  <button
+                    data-ui-grab-ignore-events
+                    data-ui-grab-toolbar-collapse
+                    data-ui-grab-toolbar-resize-hitbox
+                    data-ui-grab-toolbar-resize-handle
+                    aria-label="Drag to resize or click to collapse toolbar"
+                    class={resizeControlButtonClass()}
+                    style={resizeHandleMotionStyle()}
+                    onClick={handleResizeControlClick}
+                    on:pointerdown={handleToolbarResizePointerDown}
+                    onMouseEnter={() => {
+                      setIsResizeHandleHovered(true);
+                      setIsResizeTooltipVisible(true);
+                    }}
+                    onMouseLeave={() => {
+                      setIsResizeHandleHovered(false);
+                      if (!isResizing()) {
+                        setIsResizeTooltipVisible(false);
+                      }
+                    }}
                   >
-                    <div class={resizeHandleTooltipBubblePositionClass()}>
-                      <div
-                        class="relative"
-                        style={{
-                          transform: `scale(${resizeHandleMetrics().tooltipScale})`,
-                          "transform-origin": guidanceTooltipTransformOrigin(),
-                        }}
-                      >
-                        <div
-                          data-ui-grab-toolbar-resize-tooltip
-                          class={cn(
-                            resizeTooltipBubbleClass,
-                            "animate-tooltip-fade-in bg-white",
-                          )}
-                        >
-                          Drag to resize
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Show>
-              </div>
-            </div>
-          </Show>
+                    <span
+                      class="pointer-events-none absolute inset-[1px] rounded-[10px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.74)_0%,rgba(255,255,255,0.24)_54%,rgba(255,255,255,0)_100%)]"
+                      style={{
+                        opacity:
+                          isResizeHandleHovered() || isResizing()
+                            ? "0.92"
+                            : "0.78",
+                      }}
+                    />
+                    <span
+                      class="pointer-events-none absolute inset-[1px] rounded-[10px] bg-[linear-gradient(180deg,rgba(15,23,42,0.01)_0%,rgba(15,23,42,0.06)_100%)]"
+                      style={{
+                        opacity:
+                          isResizeHandleHovered() || isResizing()
+                            ? "0.34"
+                            : "0.24",
+                      }}
+                    />
+                    <IconResizeAxis
+                      size={resizeHandleMetrics().icon}
+                      class={resizeHandleIconClass()}
+                      style={resizeHandleIconStyle()}
+                    />
+                  </button>
+                </div>
+              )
+            }
+          />
         </div>
       </div>
-      <Show when={props.isActive && !hasLearnedSelectionHints()}>
-        <div
-          class={shakeTooltipPositionClass()}
-          style={{
-            "z-index": String(Z_INDEX_OVERLAY),
-            [isVertical() ? "top" : "left"]: "50%",
-          }}
-        >
+      <Show
+        when={
+          isResizeTooltipVisible() &&
+          isResizeHandleVisible() &&
+          isTooltipAllowed() &&
+          !isResizing()
+        }
+      >
+        <div style={resizeTooltipWrapperStyles()}>
           <div
+            ref={(element) => {
+              resizeTooltipBubbleRef = element;
+              updateBubbleSize(
+                element,
+                resizeTooltipScale(),
+                setResizeTooltipBubbleSize,
+              );
+            }}
+            data-ui-grab-toolbar-resize-tooltip
+            class={cn(
+              resizeTooltipBubbleClass,
+              "animate-tooltip-fade-in-static bg-white/96",
+            )}
+            style={{
+              transform: `scale(${resizeTooltipScale()})`,
+              "transform-origin":
+                resizeTooltipBubbleSize().width > 0 &&
+                resizeTooltipBubbleSize().height > 0
+                  ? "left top"
+                  : "center bottom",
+            }}
+          >
+            Drag to resize
+          </div>
+        </div>
+      </Show>
+      <Show when={props.isActive && isSelectionHintReady()}>
+        <div style={selectionHintTooltipWrapperStyles()}>
+          <div
+            ref={(element) => {
+              selectionHintBubbleRef = element;
+              updateBubbleSize(
+                element,
+                guidanceTooltipScale(),
+                setSelectionHintBubbleSize,
+              );
+            }}
             data-ui-grab-selection-hint
             class={cn(
-              TOOLTIP_BASE_CLASS,
-              "flex items-center gap-1 animate-tooltip-fade-in [animation-fill-mode:backwards]",
+              guidanceTooltipBubbleClass,
+              "flex items-center animate-tooltip-fade-in-static [animation-fill-mode:backwards]",
+              isGuidanceTooltipCompact() ? "gap-[3px]" : "gap-1",
               "bg-white",
             )}
             style={{
-              transform: `scale(${toolbarScale()})`,
-              "transform-origin": guidanceTooltipTransformOrigin(),
+              transform: `scale(${guidanceTooltipScale()})`,
+              "transform-origin": hasMeasuredSelectionHintBubble()
+                ? "left top"
+                : guidanceTooltipTransformOrigin(),
             }}
           >
             <Show when={selectionHintIndex() === 0}>
               <span
                 class={cn(
-                  "flex items-center gap-1",
+                  guidanceTooltipContentClass(),
                   hasHintCycled() && HINT_FLIP_IN_ANIMATION,
                 )}
               >
-                Click or
-                <Kbd>↵</Kbd>
-                to capture
+                <Show
+                  when={isGuidanceTooltipCompact()}
+                  fallback={
+                    <>
+                      Click or
+                      <Kbd>↵</Kbd>
+                      to capture
+                    </>
+                  }
+                >
+                  Capture
+                  <Kbd>↵</Kbd>
+                </Show>
               </span>
             </Show>
             <Show when={selectionHintIndex() === 1}>
               <span
-                class={cn("flex items-center gap-1", HINT_FLIP_IN_ANIMATION)}
+                class={cn(
+                  guidanceTooltipContentClass(),
+                  HINT_FLIP_IN_ANIMATION,
+                )}
               >
                 <Kbd>↑</Kbd>
                 <Kbd>↓</Kbd>
-                to fine-tune target
+                <Show
+                  when={isGuidanceTooltipCompact()}
+                  fallback={<>to fine-tune target</>}
+                >
+                  refine
+                </Show>
               </span>
             </Show>
             <Show when={selectionHintIndex() === 2}>
               <span
-                class={cn("flex items-center gap-1", HINT_FLIP_IN_ANIMATION)}
+                class={cn(
+                  guidanceTooltipContentClass(),
+                  HINT_FLIP_IN_ANIMATION,
+                )}
               >
                 <Kbd>esc</Kbd>
-                to cancel
+                <Show
+                  when={isGuidanceTooltipCompact()}
+                  fallback={<>to cancel</>}
+                >
+                  cancel
+                </Show>
               </span>
             </Show>
           </div>
         </div>
       </Show>
       <Show when={isShakeTooltipVisible()}>
-        <div
-          class={shakeTooltipPositionClass()}
-          style={{
-            "z-index": String(Z_INDEX_OVERLAY),
-            [isVertical() ? "top" : "left"]: "50%",
-          }}
-        >
+        <div style={shakeTooltipWrapperStyles()}>
           <div
+            ref={(element) => {
+              shakeTooltipBubbleRef = element;
+              updateBubbleSize(
+                element,
+                guidanceTooltipScale(),
+                setShakeTooltipBubbleSize,
+              );
+            }}
             data-ui-grab-shake-tooltip
             class={cn(
-              TOOLTIP_BASE_CLASS,
-              "animate-tooltip-fade-in",
+              guidanceTooltipBubbleClass,
+              "animate-tooltip-fade-in-static",
               "bg-white",
             )}
             style={{
-              transform: `scale(${toolbarScale()})`,
-              "transform-origin": guidanceTooltipTransformOrigin(),
+              transform: `scale(${guidanceTooltipScale()})`,
+              "transform-origin": hasMeasuredShakeBubble()
+                ? "left top"
+                : guidanceTooltipTransformOrigin(),
             }}
           >
             Enable to continue
