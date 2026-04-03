@@ -431,6 +431,38 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
       commentItem: CommentItem,
     ): Element | undefined => getConnectedCommentElements(commentItem)[0];
 
+    const revealCommentElement = async (element: Element): Promise<void> => {
+      const shouldReduceMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      element.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: shouldReduceMotion ? "auto" : "smooth",
+      });
+
+      let previousTop = Number.NaN;
+      const deadline = performance.now() + 500;
+
+      while (performance.now() < deadline) {
+        await waitUntilNextFrame();
+
+        if (!isElementConnected(element)) {
+          return;
+        }
+
+        const rect = element.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        const hasStableTop = Math.abs(rect.top - previousTop) < 0.5;
+        previousTop = rect.top;
+
+        if (centerY >= 0 && centerY <= window.innerHeight && hasStableTop) {
+          return;
+        }
+      }
+    };
+
     const commentsDisconnectedItemIds = createMemo(
       () => {
         // HACK: subscribe to dropdown position so connectivity refreshes when dropdown opens
@@ -4138,7 +4170,7 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
       });
     };
 
-    const handleCommentItemEdit = (item: CommentItem) => {
+    const handleCommentItemEdit = async (item: CommentItem) => {
       clearCommentsHoverPreviews();
       setActiveCommentItemId(item.id);
 
@@ -4150,6 +4182,9 @@ export const init = (rawOptions?: Options): UiGrabAPI => {
         actions.clearInputText();
         actions.clearReplySessionId();
       }
+
+      await revealCommentElement(element);
+      if (!isElementConnected(element)) return;
 
       const { center } = getElementBoundsCenter(element);
       setEditingCommentItemId(item.id);
