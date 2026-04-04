@@ -17,8 +17,7 @@ meta.json
 .agents/skills
 .claude
 .omx
-openspec/changes/*
-!openspec/changes/archive/
-!openspec/changes/archive/**
+# Keep only canonical OpenSpec specs versioned; workflow change artifacts stay local.
+openspec/changes/
 !openspec/specs/
 !openspec/specs/**
